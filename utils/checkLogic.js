@@ -1,4 +1,4 @@
-import isPathClear from "./pathCheck.js";
+import isPathClear from "/utils/pathCheck.js";
 
 
 
