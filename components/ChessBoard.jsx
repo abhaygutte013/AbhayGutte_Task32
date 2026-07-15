@@ -1,879 +1,909 @@
 import { useState, useEffect } from "react";
 
-import Square from "/components/Square.jsx";
-import Timer from "/components/Timer.jsx";
+import Square from "./Square.jsx";
+import Timer from "./Timer.jsx";
 
-import boardData from "/utils/initialBoard.js";
-import isValidMove from "/utils/pieceMoves.js";
-import { isKingInCheck } from "/utils/checkLogic.js";
-import isCheckmate from "/utils/checkmateLogic.js";
-import getNotation from "/utils/notation.js";
+import initialBoard from "../utils/initialBoard.js";
+
+import isValidMove from "../utils/pieceMoves.js";
+import { isKingInCheck } from "../utils/checkLogic.js";
+import isCheckmate from "../utils/checkmateLogic.js";
+import getNotation from "../utils/notation.js";
 
 
 function ChessBoard() {
 
-  const [board, setBoard] = useState(boardData);
 
-  const [selected, setSelected] = useState(null);
-
-  const [turn, setTurn] = useState("white");
-
-  const [message, setMessage] = useState("");
-
-  const [gameOver, setGameOver] = useState(false);
+    const [board,setBoard] =
+        useState(
+            initialBoard.map(row=>[...row])
+        );
 
 
-  const [whiteTime, setWhiteTime] = useState(600);
-
-  const [blackTime, setBlackTime] = useState(600);
-
-
-  const [moves, setMoves] = useState([]);
-
-  const [capturedWhite, setCapturedWhite] = useState([]);
-
-  const [capturedBlack, setCapturedBlack] = useState([]);
+    const [selected,setSelected] =
+        useState(null);
 
 
-  const [history, setHistory] = useState([]);
+    const [turn,setTurn] =
+        useState("white");
 
-  const [lastMove, setLastMove] = useState(null);
 
-  const [legalMoves, setLegalMoves] = useState([]);
+    const [message,setMessage] =
+        useState("");
+
+
+    const [gameOver,setGameOver] =
+        useState(false);
 
 
 
-  // TIMER
-
-  useEffect(() => {
-
-    if (gameOver) return;
+    const [whiteTime,setWhiteTime] =
+        useState(600);
 
 
-    const timer = setInterval(() => {
+    const [blackTime,setBlackTime] =
+        useState(600);
 
 
-      if (turn === "white") {
+
+    const [moves,setMoves] =
+        useState([]);
 
 
-        setWhiteTime((time) => {
+
+    const [capturedWhite,setCapturedWhite] =
+        useState([]);
 
 
-          if (time <= 1) {
-
-            setGameOver(true);
-
-            setMessage(
-              "Black Wins! Time Over"
-            );
-
-            return 0;
-          }
+    const [capturedBlack,setCapturedBlack] =
+        useState([]);
 
 
-          return time - 1;
 
-        });
-
-
-      } else {
+    const [history,setHistory] =
+        useState([]);
 
 
-        setBlackTime((time) => {
+
+    const [legalMoves,setLegalMoves] =
+        useState([]);
 
 
-          if (time <= 1) {
+
+    const [lastMove,setLastMove] =
+        useState(null);
 
 
-            setGameOver(true);
 
+    const [castlingRights,setCastlingRights] =
+        useState({
 
-            setMessage(
-              "White Wins! Time Over"
-            );
+            whiteKingMoved:false,
 
+            blackKingMoved:false,
 
-            return 0;
+            whiteLeftRookMoved:false,
 
-          }
+            whiteRightRookMoved:false,
 
+            blackLeftRookMoved:false,
 
-          return time - 1;
+            blackRightRookMoved:false
 
         });
 
-      }
-
-
-    },1000);
 
 
 
-    return () => clearInterval(timer);
+    useEffect(()=>{
 
 
-  },[turn,gameOver]);
-
-
-
-
-  function handleClick(row,col){
-
-
-    if(gameOver) return;
-
-
-    const piece = board[row][col];
+        if(gameOver)
+            return;
 
 
 
-    // SELECT PIECE
-
-    if(!selected){
-
-
-      if(
-        piece !== "" &&
-        piece[0] === turn[0]
-      ){
+        const timer =
+            setInterval(()=>{
 
 
-        setSelected({
-          row,
-          col
-        });
+                if(turn==="white"){
+
+
+                    setWhiteTime(time=>{
+
+
+                        if(time<=1){
+
+                            setGameOver(true);
+
+                            setMessage(
+                                "Black Wins! Time Over"
+                            );
+
+                            return 0;
+
+                        }
+
+
+                        return time-1;
+
+
+                    });
+
+
+                }
+                else{
+
+
+                    setBlackTime(time=>{
+
+
+                        if(time<=1){
+
+                            setGameOver(true);
+
+                            setMessage(
+                                "White Wins! Time Over"
+                            );
+
+                            return 0;
+
+                        }
+
+
+                        return time-1;
+
+
+                    });
+
+
+                }
 
 
 
-        const moves=[];
+            },1000);
 
 
 
-        for(let r=0;r<8;r++){
+        return ()=>clearInterval(timer);
 
-          for(let c=0;c<8;c++){
+
+
+    },[turn,gameOver]);
+
+
+
+
+
+
+
+    function handleClick(row,col){
+
+
+        if(gameOver)
+            return;
+
+
+
+        const clickedPiece =
+            board[row][col];
+
+
+
+
+        if(!selected){
 
 
             if(
-              isValidMove(
-                board,
-                row,
-                col,
-                r,
-                c,
-                turn
-              )
+                clickedPiece !== "" &&
+                clickedPiece[0] === turn[0]
             ){
 
 
-              moves.push({
-                row:r,
-                col:c
-              });
+                setSelected({
+
+                    row,
+                    col
+
+                });
+
+
+
+                const possibleMoves=[];
+
+
+
+                for(let r=0;r<8;r++){
+
+
+                    for(let c=0;c<8;c++){
+
+
+
+                        if(
+                            isValidMove(
+
+                                board,
+
+                                row,
+
+                                col,
+
+                                r,
+
+                                c,
+
+                                turn,
+
+                                lastMove,
+
+                                castlingRights
+
+                            )
+                        ){
+
+
+                            possibleMoves.push({
+
+                                row:r,
+
+                                col:c
+
+                            });
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+                setLegalMoves(
+                    possibleMoves
+                );
 
 
             }
 
-          }
+
+
+            return;
+
 
         }
 
 
-        setLegalMoves(moves);
-
-      }
 
 
-      return;
 
-    }
+
         const from = selected;
 
 
-    const movingPiece =
-      board[from.row][from.col];
+        const movingPiece =
+            board[from.row][from.col];
 
 
 
-    const valid = isValidMove(
-      board,
-      from.row,
-      from.col,
-      row,
-      col,
-      turn
-    );
+        const validMove =
+            isValidMove(
 
+                board,
 
+                from.row,
 
-    if(!valid){
+                from.col,
 
-      setSelected(null);
+                row,
 
-      setLegalMoves([]);
+                col,
 
-      return;
+                turn,
 
-    }
+                lastMove,
 
+                castlingRights
 
+            );
 
-    // SAVE OLD BOARD FOR UNDO
 
-    setHistory((old)=>[
-      ...old,
-      board.map((r)=>[...r])
-    ]);
 
+        if(!validMove){
 
 
-    const newBoard =
-      board.map((r)=>[...r]);
+            setSelected(null);
 
+            setLegalMoves([]);
 
+            return;
 
-    const capturedPiece =
-      newBoard[row][col];
 
+        }
 
 
-    // CASTLING
 
-    if(
-      movingPiece[1]==="k" &&
-      Math.abs(col-from.col)===2
-    ){
 
 
-      if(col > from.col){
+        setHistory(old=>[
 
+            ...old,
 
-        newBoard[row][5] =
-          newBoard[row][7];
+            {
 
+                board:
+                board.map(r=>[...r]),
 
-        newBoard[row][7]="";
+                turn,
 
+                lastMove,
 
-      }
-      else{
+                castlingRights
 
+            }
 
-        newBoard[row][3] =
-          newBoard[row][0];
-
-
-        newBoard[row][0]="";
-
-
-      }
-
-    }
-
-
-
-
-    // EN PASSANT
-
-    if(
-      movingPiece[1]==="p" &&
-      col!==from.col &&
-      newBoard[row][col]===""
-    ){
-
-      newBoard[from.row][col]="";
-
-    }
-
-
-
-
-    // MOVE PIECE
-
-    newBoard[row][col]=movingPiece;
-
-    newBoard[from.row][from.col]="";
-
-
-
-
-
-    // PROMOTION
-
-    if(
-      movingPiece==="wp" &&
-      row===0
-    ){
-
-      newBoard[row][col]="wq";
-
-    }
-
-
-
-    if(
-      movingPiece==="bp" &&
-      row===7
-    ){
-
-      newBoard[row][col]="bq";
-
-    }
-
-
-
-
-
-    // CHECK OWN KING
-
-    if(
-      isKingInCheck(
-        newBoard,
-        turn
-      )
-    ){
-
-
-      alert(
-        "Invalid Move! Your King is in Check"
-      );
-
-
-      setSelected(null);
-
-      setLegalMoves([]);
-
-      return;
-
-    }
-
-
-
-
-
-    setBoard(newBoard);
-
-
-
-
-
-    setLastMove({
-
-      piece:movingPiece,
-
-      fromRow:from.row,
-
-      fromCol:from.col,
-
-      toRow:row,
-
-      toCol:col
-
-    });
-
-
-
-
-
-
-    // =========================
-    // FIXED TURN SWITCHING
-    // =========================
-
-
-    const nextTurn =
-      turn==="white"
-      ? "black"
-      : "white";
-
-
-
-
-
-    const check =
-      isKingInCheck(
-        newBoard,
-        nextTurn
-      );
-
-
-
-    const mate =
-      isCheckmate(
-        newBoard,
-        nextTurn
-      );
-
-
-
-
-
-    const notation =
-      getNotation(
-        movingPiece,
-        row,
-        col,
-        capturedPiece !== "",
-        check,
-        mate
-      );
-
-
-
-
-
-    // ADD MOVE ONCE
-
-    setMoves((old)=>[
-      ...old,
-      notation
-    ]);
-
-
-
-
-
-    // CHANGE PLAYER
-
-    setTurn(nextTurn);
-
-
-
-    console.log(
-      "Next Turn:",
-      nextTurn
-    );
-
-
-
-
-
-
-    // CAPTURED PIECES
-
-
-    if(capturedPiece!==""){
-
-
-      if(capturedPiece[0]==="w"){
-
-
-        setCapturedWhite((old)=>[
-          ...old,
-          capturedPiece
         ]);
 
 
-      }
-      else{
 
 
-        setCapturedBlack((old)=>[
-          ...old,
-          capturedPiece
-        ]);
 
 
-      }
+        const newBoard =
+            board.map(r=>[...r]);
 
 
-    }
 
+        const capturedPiece =
+            newBoard[row][col];
 
 
 
 
-    // CHECK / CHECKMATE MESSAGE
 
 
-    if(mate){
+        newBoard[row][col] =
+            movingPiece;
 
 
-      setMessage(
-        `${turn} Wins by Checkmate!`
-      );
+        newBoard[from.row][from.col]="";
 
 
-      setGameOver(true);
 
 
-    }
 
-    else if(check){
 
 
-      setMessage("Check!");
+        if(
 
-    }
+            movingPiece[1]==="k" &&
+            Math.abs(col-from.col)===2
 
-    else{
+        ){
 
 
-      setMessage("");
+            if(col>from.col){
 
-    }
 
+                newBoard[row][5]=
+                    newBoard[row][7];
 
 
+                newBoard[row][7]="";
 
-    setSelected(null);
 
-    setLegalMoves([]);
+            }
+            else{
 
 
-  }
-    function undoMove(){
+                newBoard[row][3]=
+                    newBoard[row][0];
 
-    if(history.length===0) return;
 
+                newBoard[row][0]="";
 
-    const previous =
-      history[history.length-1];
 
+            }
 
-    setBoard(previous);
 
+        }
 
-    setHistory(
-      history.slice(0,-1)
-    );
 
 
-    setSelected(null);
 
-    setLegalMoves([]);
 
-    setMessage("");
 
+        if(
 
+            movingPiece[1]==="p" &&
+            col!==from.col &&
+            capturedPiece===""
 
-    setTurn((prev)=>
-      prev==="white"
-      ? "black"
-      : "white"
-    );
+        ){
 
-  }
 
+            newBoard[from.row][col]="";
 
 
+        }
 
 
-  function resetGame(){
 
 
-    setBoard(boardData);
 
-    setSelected(null);
 
-    setTurn("white");
 
-    setMessage("");
+        if(
 
-    setGameOver(false);
+            movingPiece==="wp" &&
+            row===0
 
+        ){
 
-    setWhiteTime(600);
 
-    setBlackTime(600);
+            let choice =
+                prompt(
+                    "Promote q,r,b,n",
+                    "q"
+                );
 
 
-    setMoves([]);
+            if(
+                !["q","r","b","n"]
+                .includes(choice)
+            ){
 
+                choice="q";
 
-    setCapturedWhite([]);
+            }
 
-    setCapturedBlack([]);
 
+            newBoard[row][col]="w"+choice;
 
-    setHistory([]);
 
+        }
 
-    setLastMove(null);
 
 
-    setLegalMoves([]);
 
-  }
 
+        if(
 
+            movingPiece==="bp" &&
+            row===7
 
+        ){
 
 
-  return (
+            let choice =
+                prompt(
+                    "Promote q,r,b,n",
+                    "q"
+                );
 
-    <div className="game-container">
 
+            if(
+                !["q","r","b","n"]
+                .includes(choice)
+            ){
 
-      <div className="left-panel">
+                choice="q";
 
+            }
 
-        <h2>
-          {message}
-        </h2>
 
+            newBoard[row][col]="b"+choice;
 
 
-        <div className="timers">
+        }
 
 
-          <Timer
-            title="White"
-            time={whiteTime}
-          />
 
 
 
-          <Timer
-            title="Black"
-            time={blackTime}
-          />
 
 
-        </div>
+        if(
 
-
-
-
-
-        <h2>
-          Turn : {turn}
-        </h2>
-
-
-
-
-
-        <div className="board">
-
-
-          {
-            board.map(
-              (row,rowIndex)=>
-
-              row.map(
-                (piece,colIndex)=>(
-
-
-                  <Square
-
-                    key={`${rowIndex}-${colIndex}`}
-
-
-                    piece={piece}
-
-
-                    row={rowIndex}
-
-
-                    col={colIndex}
-
-
-
-                    selected={
-                      selected &&
-                      selected.row===rowIndex &&
-                      selected.col===colIndex
-                    }
-
-
-
-
-                    highlight={
-                      legalMoves.some(
-                        (move)=>
-                          move.row===rowIndex &&
-                          move.col===colIndex
-                      )
-                    }
-
-
-
-
-                    onClick={()=>
-                      handleClick(
-                        rowIndex,
-                        colIndex
-                      )
-                    }
-
-
-                  />
-
-                )
-
-              )
+            isKingInCheck(
+                newBoard,
+                turn
             )
 
-          }
+        ){
 
 
-        </div>
+            setSelected(null);
+
+            setLegalMoves([]);
+
+            return;
 
 
-
-
-
-        <div className="button-group">
-
-
-          <button onClick={undoMove}>
-
-            Undo Move
-
-          </button>
-
-
-
-
-          <button onClick={resetGame}>
-
-            Restart Game
-
-          </button>
-
-
-        </div>
-
-
-
-      </div>
+        }
 
 
 
 
 
 
-      <div className="right-panel">
+
+        const nextTurn =
+            turn==="white"
+            ?"black"
+            :"white";
 
 
 
-        <div className="captured">
 
 
-          <h2>
-            Captured Pieces
-          </h2>
-
-
-
-          <h3>
-            White Pieces
-          </h3>
+        const check =
+            isKingInCheck(
+                newBoard,
+                nextTurn
+            );
 
 
 
-          <p>
+        const mate =
+            isCheckmate(
+                newBoard,
+                nextTurn
+            );
 
-            {
-              capturedWhite.length===0
-              ? "None"
-              : capturedWhite.join(" ")
+
+
+
+
+
+        let notation;
+
+
+
+        if(
+
+            movingPiece[1]==="k" &&
+            Math.abs(col-from.col)===2
+
+        ){
+
+
+            notation =
+                col>from.col
+                ?"O-O"
+                :"O-O-O";
+
+
+        }
+        else{
+
+
+            notation =
+                getNotation(
+
+                    movingPiece,
+
+                    row,
+
+                    col,
+
+                    capturedPiece!=="",
+
+                    check,
+
+                    mate
+
+                );
+
+
+        }
+
+
+
+
+
+        setBoard(newBoard);
+
+
+        setMoves(old=>[
+
+            ...old,
+
+            notation
+
+        ]);
+
+
+
+        setLastMove({
+
+            piece:movingPiece,
+
+            fromRow:from.row,
+
+            fromCol:from.col,
+
+            toRow:row,
+
+            toCol:col
+
+        });
+
+
+
+
+
+        if(capturedPiece!==""){
+
+
+            if(capturedPiece[0]==="w"){
+
+
+                setCapturedWhite(old=>[
+                    ...old,
+                    capturedPiece
+                ]);
+
+
+            }
+            else{
+
+
+                setCapturedBlack(old=>[
+                    ...old,
+                    capturedPiece
+                ]);
+
+
             }
 
-          </p>
 
-
-
-
-
-          <h3>
-            Black Pieces
-          </h3>
-
-
-
-
-          <p>
-
-            {
-              capturedBlack.length===0
-              ? "None"
-              : capturedBlack.join(" ")
-            }
-
-          </p>
-
-
-
-        </div>
+        }
 
 
 
 
 
 
-
-        <div className="history">
-
-
-          <h2>
-            Move History
-          </h2>
+        if(mate){
 
 
+            setGameOver(true);
 
 
-          {
-            moves.length===0
-
-            ?
-
-            <p>
-              No moves yet
-            </p>
+            setMessage(
+                `${turn} wins by Checkmate`
+            );
 
 
-            :
+        }
+        else if(check){
 
 
-            moves.map(
-              (move,index)=>(
+            setMessage("Check");
 
 
-                <div key={index}>
+        }
+        else{
 
 
-                  <strong>
-                    {index+1}.
-                  </strong>
+            setMessage("");
 
 
-                  {" "}
+        }
 
 
-                  {move}
 
+
+        setTurn(nextTurn);
+
+
+        setSelected(null);
+
+
+        setLegalMoves([]);
+
+
+
+
+    }
+
+
+
+
+
+
+
+    function undoMove(){
+
+
+        if(history.length===0)
+            return;
+
+
+
+        const previous =
+            history[history.length-1];
+
+
+
+        setBoard(previous.board);
+
+
+        setTurn(previous.turn);
+
+
+        setLastMove(previous.lastMove);
+
+
+        setCastlingRights(
+            previous.castlingRights
+        );
+
+
+        setHistory(old=>
+            old.slice(0,-1)
+        );
+
+
+        setMoves(old=>
+            old.slice(0,-1)
+        );
+
+
+        setSelected(null);
+
+        setLegalMoves([]);
+
+        setMessage("");
+
+
+
+    }
+
+    function resetGame(){
+
+
+        setBoard(
+            initialBoard.map(row=>[...row])
+        );
+
+
+        setTurn("white");
+
+        setSelected(null);
+
+        setMoves([]);
+
+        setHistory([]);
+
+        setCapturedWhite([]);
+
+        setCapturedBlack([]);
+
+        setWhiteTime(600);
+
+        setBlackTime(600);
+
+        setGameOver(false);
+
+        setMessage("");
+
+        setLastMove(null);
+
+
+
+    }
+
+
+
+
+
+
+
+
+    return (
+
+        <div className="game-container">
+
+
+            <div className="players">
+
+
+                <div
+                className={
+                    turn==="black"
+                    ?"player-card active-player"
+                    :"player-card"
+                }
+                >
+
+                    <h3>Black</h3>
+
+                    <Timer
+
+                    whiteTime={whiteTime}
+
+                    blackTime={blackTime}
+
+                    turn={turn}
+
+                    />
+
+                </div>
+
+
+
+                <div
+                className={
+                    turn==="white"
+                    ?"player-card active-player"
+                    :"player-card"
+                }
+                >
+
+                    <h3>White</h3>
 
 
                 </div>
 
 
-              )
-
-            )
-
-          }
+            </div>
 
 
 
+
+
+            <h2>
+                {message}
+            </h2>
+            <div className="board">
+            {
+                board.map((row,r)=>
+
+                    row.map((piece,c)=>(
+
+
+                        <Square
+
+                        key={`${r}-${c}`}
+
+                        piece={piece}
+
+                        row={r}
+
+                        col={c}
+
+                        selected={
+                            selected &&
+                            selected.row===r &&
+                            selected.col===c
+                        }
+                        legalMove={
+                            legalMoves.some(
+                                m=>
+                                m.row===r &&
+                                m.col===c
+                            )
+                        }
+                        onClick={handleClick}
+                        />
+                    ))
+                )
+            }
+            </div>
+            <button onClick={undoMove}>
+                Undo
+            </button>
+            <button onClick={resetGame}>
+                Restart
+            </button>
         </div>
-
-
-
-
-      </div>
-
-
-
-
-    </div>
-
-  );
-
-
+    );
 }
-
 
 
 export default ChessBoard;
