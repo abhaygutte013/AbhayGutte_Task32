@@ -48,12 +48,7 @@ function Square({
 
 }
 
-
-
-
 function getPieceImage(piece){
-
-
     const pieces={
 
         wp:"♙",
