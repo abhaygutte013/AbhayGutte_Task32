@@ -1,75 +1,83 @@
-# Offline Chess Game ♟️
-This project is a simple offline chess game made using React.js.
-The purpose of this project is to create a chess game where two players can play on the same computer. Players can move pieces, capture opponent pieces, and the game checks important chess rules like legal moves, check, and checkmate.
-I created this project to learn more about React components, state management, and handling complex game logic.
+# React Chess Game
+## About Project
+This project is made using React JS. It is a browser-based chess game where two players can play chess by following standard chess rules.
+The main aim of this project is to understand how React state management works and how complex game logic can be implemented using components and utility functions.
+In this project, I created a chess board, implemented piece movements, turn management, check and checkmate detection, timers, captured pieces tracking, move history, undo functionality, and pawn promotion.
 
 ## Features
-- Two player offline chess game
-- White and Black player turns
-- Legal chess move checking
+
+- Complete 8x8 chess board
+- Display all chess pieces
+- Move pieces according to chess rules
+- Turn based gameplay
+- Legal move highlighting
+- Pawn first double move
+- Pawn capture
+- En passant support
+- Castling support
+- Pawn promotion
 - Check detection
 - Checkmate detection
-- Player countdown timer
-- Move history display
 - Captured pieces display
-- Undo move option
+- Move notation display
+- Undo previous move
 - Restart game option
-- Pawn promotion
-- Castling support
+- Player timers
+- Responsive chess board design
 
 ## Technologies Used
 
-- React.js
+- React JS
 - JavaScript
-- HTML
+- React Hooks (useState, useEffect)
 - CSS
 - Vite
 
-## Project Folder Structure
+## Folder Structure
+
 -src{app.jsx,app.css,index.css,main.jsx}
 -components{chessboard.jsx,timer.jsx,square.jsx}
--utils{checklogic.js,checkmatelogic.js,notation.js,initialboard.js,pawnmoves.js,piecemoves.js}
+-utils{checklogic.js,checkmatelogic.js,notation.js,initialboard.js,pawnmoves.js,piecemoves.js,pathCheck.js}
 
-## How to Run the Project
-Follow these steps to run the project on your system.
-### 1. Clone the repository
-git clone <repository-link>
-### 2. Open the project folder
-cd chess-game
-### 3. Install dependencies
-npm install
-### 4. Start the development server
-npm run dev
-After running the command, Vite will provide a local server link.
-Open the link in your browser:http://localhost:5173/
 
-## How To Play
-1. The game starts with the White player turn.
-2. Click on any chess piece.
-3. Possible moves will be highlighted.
-4. Click on the square where you want to move the piece.
-5. After a successful move, the turn changes to the other player.
-6. The game continues until checkmate or the timer finishes.
+## How to Run
 
-## Problems Faced During Development
-While developing this project, I faced some difficulties:
-- Managing the board state after every move
-- Switching turns between white and black players
-- Implementing movement rules for different pieces
-- Detecting check and checkmate situations
-- Updating captured pieces correctly
-- Managing the timer for both players
-- Fixing bugs related to React state updates
-These problems were solved by separating different logic into different files and improving state handling.
+1. First install all packages:npm install
+
+2. Start the project:npm run dev
+
+3. Open browser and visit:http://localhost:5173/
+
+
+## What I Learned
+
+While creating this project I learned how to manage complex state in React using useState and useEffect.
+I learned how to divide a large application into smaller reusable components like ChessBoard, Square, and Timer.
+I also understood how game logic works by creating separate utility files for piece movement, check detection, and checkmate detection.
+Another thing I learned was how to handle user interaction, update the board dynamically, and maintain game information like moves, captured pieces, and timers.
+
+## Challenges I Faced
+
+At first I found it difficult to manage the movement rules of different chess pieces because every piece has different conditions.
+I faced issues while implementing check and checkmate detection because the program needed to check every possible move before deciding the game status.
+Handling special moves like castling, en passant, and pawn promotion also required extra logic.
+I also faced some import and file structure errors while connecting different utility files. After organizing the project properly, the errors were fixed.
 
 ## Future Improvements
-Some improvements that can be added in the future:
-- Add online multiplayer support
-- Add chess AI opponent
-- Improve user interface
-- Add save and load game feature
-- Add better chess notation system
+
+Some features can still be added like:
+- Online multiplayer mode
+- AI opponent using chess engine
+- Move validation with complete FIDE rules
+- Game save and load option
+- Player profiles
+- Chess opening suggestions
+- Better animations for piece movement
+- Sound effects
 
 ## Conclusion
+
+This project helped me understand React concepts in a practical way. I learned how to manage complex application states, create reusable components, and implement logic-heavy applications.
+Building this chess game improved my understanding of JavaScript problem solving and React component communication. Overall, it was a challenging but useful project for improving my frontend development skills.
 This project helped me understand React concepts like components, state, and event handling.
 Creating a chess game was challenging because many rules have to work together, but it helped me improve my problem-solving and coding skills.
