@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 
 import Square from "/components/Square.jsx";
 import Timer from "/components/Timer.jsx";
+
 import initialBoard from "/utils/initialBoard.js";
+
 import isValidMove from "/utils/pieceMoves.js";
 import { isKingInCheck } from "/utils/checkLogic.js";
 import isCheckmate from "/utils/checkmateLogic.js";
@@ -10,6 +12,7 @@ import getNotation from "/utils/notation.js";
 
 
 function ChessBoard() {
+
 
     const [board,setBoard] =
         useState(
@@ -92,6 +95,7 @@ function ChessBoard() {
 
 
 
+
     useEffect(()=>{
 
 
@@ -110,7 +114,7 @@ function ChessBoard() {
                     setWhiteTime(time=>{
 
 
-                        if(time<=1){
+                        if(time <= 1){
 
                             setGameOver(true);
 
@@ -123,7 +127,7 @@ function ChessBoard() {
                         }
 
 
-                        return time-1;
+                        return time - 1;
 
 
                     });
@@ -136,7 +140,7 @@ function ChessBoard() {
                     setBlackTime(time=>{
 
 
-                        if(time<=1){
+                        if(time <= 1){
 
                             setGameOver(true);
 
@@ -149,14 +153,13 @@ function ChessBoard() {
                         }
 
 
-                        return time-1;
+                        return time - 1;
 
 
                     });
 
 
                 }
-
 
 
             },1000);
@@ -168,14 +171,7 @@ function ChessBoard() {
 
 
     },[turn,gameOver]);
-
-
-
-
-
-
-
-    function handleClick(row,col){
+        function handleClick(row,col){
 
 
         if(gameOver)
@@ -207,7 +203,7 @@ function ChessBoard() {
 
 
 
-                const possibleMoves=[];
+                const possibleMoves = [];
 
 
 
@@ -215,7 +211,6 @@ function ChessBoard() {
 
 
                     for(let c=0;c<8;c++){
-
 
 
                         if(
@@ -259,6 +254,7 @@ function ChessBoard() {
                 }
 
 
+
                 setLegalMoves(
                     possibleMoves
                 );
@@ -277,8 +273,8 @@ function ChessBoard() {
 
 
 
-
         const from = selected;
+
 
 
         const movingPiece =
@@ -309,6 +305,7 @@ function ChessBoard() {
 
 
 
+
         if(!validMove){
 
 
@@ -320,6 +317,7 @@ function ChessBoard() {
 
 
         }
+
 
 
 
@@ -338,11 +336,20 @@ function ChessBoard() {
 
                 lastMove,
 
-                castlingRights
+                castlingRights,
+
+                capturedWhite,
+
+                capturedBlack,
+
+                whiteTime,
+
+                blackTime
 
             }
 
         ]);
+
 
 
 
@@ -360,10 +367,9 @@ function ChessBoard() {
 
 
 
-
-
         newBoard[row][col] =
             movingPiece;
+
 
 
         newBoard[from.row][from.col]="";
@@ -374,6 +380,8 @@ function ChessBoard() {
 
 
 
+        // Castling
+
         if(
 
             movingPiece[1]==="k" &&
@@ -382,10 +390,10 @@ function ChessBoard() {
         ){
 
 
-            if(col>from.col){
+            if(col > from.col){
 
 
-                newBoard[row][5]=
+                newBoard[row][5] =
                     newBoard[row][7];
 
 
@@ -396,7 +404,7 @@ function ChessBoard() {
             else{
 
 
-                newBoard[row][3]=
+                newBoard[row][3] =
                     newBoard[row][0];
 
 
@@ -412,6 +420,9 @@ function ChessBoard() {
 
 
 
+
+
+        // En Passant
 
         if(
 
@@ -433,6 +444,8 @@ function ChessBoard() {
 
 
 
+        // Promotion White
+
         if(
 
             movingPiece==="wp" &&
@@ -443,7 +456,7 @@ function ChessBoard() {
 
             let choice =
                 prompt(
-                    "Promote q,r,b,n",
+                    "Promote to q,r,b,n",
                     "q"
                 );
 
@@ -458,7 +471,8 @@ function ChessBoard() {
             }
 
 
-            newBoard[row][col]="w"+choice;
+            newBoard[row][col] =
+                "w"+choice;
 
 
         }
@@ -466,6 +480,10 @@ function ChessBoard() {
 
 
 
+
+
+
+        // Promotion Black
 
         if(
 
@@ -477,7 +495,7 @@ function ChessBoard() {
 
             let choice =
                 prompt(
-                    "Promote q,r,b,n",
+                    "Promote to q,r,b,n",
                     "q"
                 );
 
@@ -492,7 +510,8 @@ function ChessBoard() {
             }
 
 
-            newBoard[row][col]="b"+choice;
+            newBoard[row][col] =
+                "b"+choice;
 
 
         }
@@ -502,6 +521,8 @@ function ChessBoard() {
 
 
 
+
+        // Prevent self check
 
         if(
 
@@ -537,6 +558,7 @@ function ChessBoard() {
 
 
 
+
         const check =
             isKingInCheck(
                 newBoard,
@@ -546,6 +568,7 @@ function ChessBoard() {
 
 
         const mate =
+            check &&
             isCheckmate(
                 newBoard,
                 nextTurn
@@ -569,7 +592,7 @@ function ChessBoard() {
 
 
             notation =
-                col>from.col
+                col > from.col
                 ?"O-O"
                 :"O-O-O";
 
@@ -602,7 +625,10 @@ function ChessBoard() {
 
 
 
+
+
         setBoard(newBoard);
+
 
 
         setMoves(old=>[
@@ -612,6 +638,8 @@ function ChessBoard() {
             notation
 
         ]);
+
+
 
 
 
@@ -633,6 +661,8 @@ function ChessBoard() {
 
 
 
+
+
         if(capturedPiece!==""){
 
 
@@ -640,8 +670,11 @@ function ChessBoard() {
 
 
                 setCapturedWhite(old=>[
+
                     ...old,
+
                     capturedPiece
+
                 ]);
 
 
@@ -650,8 +683,11 @@ function ChessBoard() {
 
 
                 setCapturedBlack(old=>[
+
                     ...old,
+
                     capturedPiece
+
                 ]);
 
 
@@ -659,6 +695,7 @@ function ChessBoard() {
 
 
         }
+
 
 
 
@@ -695,6 +732,9 @@ function ChessBoard() {
 
 
 
+
+
+
         setTurn(nextTurn);
 
 
@@ -705,16 +745,8 @@ function ChessBoard() {
 
 
 
-
     }
-
-
-
-
-
-
-
-    function undoMove(){
+        function undoMove(){
 
 
         if(history.length===0)
@@ -736,9 +768,33 @@ function ChessBoard() {
         setLastMove(previous.lastMove);
 
 
+
         setCastlingRights(
             previous.castlingRights
         );
+
+
+
+        setCapturedWhite(
+            previous.capturedWhite
+        );
+
+
+        setCapturedBlack(
+            previous.capturedBlack
+        );
+
+
+
+        setWhiteTime(
+            previous.whiteTime
+        );
+
+
+        setBlackTime(
+            previous.blackTime
+        );
+
 
 
         setHistory(old=>
@@ -746,20 +802,30 @@ function ChessBoard() {
         );
 
 
+
         setMoves(old=>
             old.slice(0,-1)
         );
 
 
+
         setSelected(null);
 
+
         setLegalMoves([]);
+
 
         setMessage("");
 
 
 
     }
+
+
+
+
+
+
 
     function resetGame(){
 
@@ -769,38 +835,57 @@ function ChessBoard() {
         );
 
 
-        setTurn("white");
-
         setSelected(null);
 
-        setMoves([]);
 
-        setHistory([]);
+        setTurn("white");
 
-        setCapturedWhite([]);
-
-        setCapturedBlack([]);
-
-        setWhiteTime(600);
-
-        setBlackTime(600);
-
-        setGameOver(false);
 
         setMessage("");
 
-        setLastMove(null);
 
+        setGameOver(false);
+
+
+
+        setWhiteTime(600);
+
+
+        setBlackTime(600);
+
+
+
+        setMoves([]);
+
+
+        setHistory([]);
+
+
+
+        setCapturedWhite([]);
+
+
+        setCapturedBlack([]);
+        setLegalMoves([]);
+        setLastMove(null);
+        setCastlingRights({
+
+            whiteKingMoved:false,
+
+            blackKingMoved:false,
+
+            whiteLeftRookMoved:false,
+
+            whiteRightRookMoved:false,
+
+            blackLeftRookMoved:false,
+
+            blackRightRookMoved:false
+
+        });
 
 
     }
-
-
-
-
-
-
-
 
     return (
 
@@ -818,22 +903,23 @@ function ChessBoard() {
                 }
                 >
 
-                    <h3>Black</h3>
+                    <h3>
+                        Black
+                    </h3>
+
 
                     <Timer
 
-                    whiteTime={whiteTime}
+                        whiteTime={whiteTime}
 
-                    blackTime={blackTime}
+                        blackTime={blackTime}
 
-                    turn={turn}
+                        turn={turn}
 
                     />
 
+
                 </div>
-
-
-
                 <div
                 className={
                     turn==="white"
@@ -842,22 +928,21 @@ function ChessBoard() {
                 }
                 >
 
-                    <h3>White</h3>
+                    <h3>
+                        White
+                    </h3>
 
 
                 </div>
 
 
             </div>
-
-
-
-
-
             <h2>
                 {message}
             </h2>
             <div className="board">
+
+
             {
                 board.map((row,r)=>
 
@@ -878,29 +963,51 @@ function ChessBoard() {
                             selected &&
                             selected.row===r &&
                             selected.col===c
+
                         }
+
+
+
                         legalMove={
+
                             legalMoves.some(
+
                                 m=>
+
                                 m.row===r &&
                                 m.col===c
+
                             )
+
                         }
+
                         onClick={handleClick}
+
+
                         />
+
+
                     ))
+
                 )
             }
+
+
             </div>
+
             <button onClick={undoMove}>
                 Undo
             </button>
+
             <button onClick={resetGame}>
                 Restart
             </button>
         </div>
+
     );
+
 }
+
 
 
 export default ChessBoard;
