@@ -1,102 +1,45 @@
-function Timer({
+function Square({
 
-    whiteTime,
-
-    blackTime,
-
-    turn
+    piece,
+    row,
+    col,
+    selected,
+    legalMove,
+    onClick
 
 }) {
 
 
-
-    function formatTime(seconds){
-
-
-        const minutes =
-            Math.floor(seconds / 60);
-
-
-        const secondsLeft =
-            seconds % 60;
-
-
-
-        return (
-
-            `${String(minutes).padStart(2,"0")}:${String(secondsLeft).padStart(2,"0")}`
-
-        );
-
-
-    }
-
-
-
-
-
     return (
 
-        <div className="timer">
+        <div
+
+            className={
+                `square 
+                ${(row + col) % 2 === 0 ? "light" : "dark"}
+                ${selected ? "selected" : ""}
+                ${legalMove ? "legal" : ""}`
+            }
 
 
+            onClick={() => onClick(row,col)}
 
-            <div
+        >
 
-                className={
+            {
+                piece &&
+                <span className="piece">
 
-                    turn === "white"
+                    {getPieceImage(piece)}
 
-                    ? "time-box active-time"
-
-                    : "time-box"
-
-                }
-
-            >
-
-                <h3>
-                    White
-                </h3>
+                </span>
+            }
 
 
-                <p>
-                    {formatTime(whiteTime)}
-                </p>
-
-
-            </div>
-
-
-
-
-
-            <div
-
-                className={
-
-                    turn === "black"
-
-                    ? "time-box active-time"
-
-                    : "time-box"
-
-                }
-
-            >
-
-                <h3>
-                    Black
-                </h3>
-
-
-                <p>
-                    {formatTime(blackTime)}
-                </p>
-
-
-            </div>
-
+            {
+                legalMove &&
+                <div className="move-dot"></div>
+            }
 
 
         </div>
@@ -107,4 +50,33 @@ function Timer({
 
 
 
-export default Timer;
+
+function getPieceImage(piece){
+
+
+    const pieces={
+
+        wp:"♙",
+        wr:"♖",
+        wn:"♘",
+        wb:"♗",
+        wq:"♕",
+        wk:"♔",
+
+        bp:"♟",
+        br:"♜",
+        bn:"♞",
+        bb:"♝",
+        bq:"♛",
+        bk:"♚"
+
+    };
+
+
+    return pieces[piece] || "";
+
+}
+
+
+
+export default Square;
