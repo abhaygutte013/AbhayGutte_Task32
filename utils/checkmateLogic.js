@@ -1,5 +1,5 @@
-import { isKingInCheck } from "./checkLogic.js";
-import isValidMove from "./pieceMoves.js";
+import { isKingInCheck } from "/utils/checkLogic.js";
+import isValidMove from "/utils/pieceMoves.js";
 
 
 
