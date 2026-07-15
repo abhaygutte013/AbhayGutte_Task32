@@ -1,14 +1,99 @@
-function Timer({title,time}){
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  return(
-    <div className="timer">
-      <h3>{title}</h3>
-      <h2>
-        {String(minutes).padStart(2, "0")}:
-        {String(seconds).padStart(2, "0")}
-      </h2>
-    </div>
-  );
+function Timer({
+
+    whiteTime,
+
+    blackTime,
+
+    turn
+
+}) {
+    function formatTime(seconds) {
+
+    if (seconds === undefined || seconds === null || isNaN(seconds)) {
+        seconds = 0;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+
+    const secondsLeft = seconds % 60;
+
+    return (
+        `${String(minutes).padStart(2,"0")}:${String(secondsLeft).padStart(2,"0")}`
+    );
 }
+
+
+
+    return (
+
+        <div className="timer">
+
+
+
+            <div
+
+                className={
+
+                    turn === "white"
+
+                    ? "time-box active-time"
+
+                    : "time-box"
+
+                }
+
+            >
+
+                <h3>
+                    White
+                </h3>
+
+
+                <p>
+                    {formatTime(whiteTime)}
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div
+
+                className={
+
+                    turn === "black"
+
+                    ? "time-box active-time"
+
+                    : "time-box"
+
+                }
+
+            >
+
+                <h3>
+                    Black
+                </h3>
+
+
+                <p>
+                    {formatTime(blackTime)}
+                </p>
+
+
+            </div>
+
+
+
+        </div>
+
+    );
+
+}
+
+
+
 export default Timer;
