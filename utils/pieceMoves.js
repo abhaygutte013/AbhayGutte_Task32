@@ -1,5 +1,5 @@
-import isValidPawnMove from "./pawnMoves.js";
-import isPathClear from "./pathCheck.js";
+import isValidPawnMove from "/utils/pawnMoves.js";
+import isPathClear from "/utils/pathCheck.js";
 
 
 
