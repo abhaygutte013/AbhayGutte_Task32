@@ -21,7 +21,6 @@ function Square({
                 ${legalMove ? "legal" : ""}`
             }
 
-
             onClick={() => onClick(row,col)}
 
         >
@@ -48,7 +47,12 @@ function Square({
 
 }
 
+
+
+
 function getPieceImage(piece){
+
+
     const pieces={
 
         wp:"♙",
