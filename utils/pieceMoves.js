@@ -1,368 +1,275 @@
+// This file checks whether a selected chess piece
+// can move from one square to another.
+// It only checks movement rules.
+// King safety is checked in checkLogic.js.
+
 import isValidPawnMove from "/utils/pawnMoves.js";
 import isPathClear from "/utils/pathCheck.js";
 
-
-
 function isValidMove(
-
     board,
-
     fromRow,
-
     fromCol,
-
     toRow,
-
     toCol,
-
     turn,
-
     lastMove,
+    castlingRights
+) {
 
-    castlingRights = {}
+    // Get selected piece.
+    const piece = board[fromRow][fromCol];
 
-){
-
-
-    const piece =
-        board[fromRow][fromCol];
-
-
-
-    if(piece===""){
-
+    // Empty square cannot move.
+    if (piece === "") {
         return false;
-
     }
 
-
-
-    const color =
-        piece[0];
-
-
-    const type =
-        piece[1];
-
-
-
-    if(color !== turn[0]){
-
+    // Current player's turn.
+    if (piece[0] !== turn[0]) {
         return false;
-
     }
 
+    // Destination square.
+    const target = board[toRow][toCol];
 
-
-    const target =
-        board[toRow][toCol];
-
-
-
-    if(
-
+    // Cannot capture own piece.
+    if (
         target !== "" &&
-        target[0] === color
-
-    ){
-
+        target[0] === piece[0]
+    ) {
         return false;
-
     }
 
-
-
-    const rowDiff =
-        toRow-fromRow;
-
-
-    const colDiff =
-        toCol-fromCol;
-
-
-    const absRow =
-        Math.abs(rowDiff);
-
-
-    const absCol =
-        Math.abs(colDiff);
-
-
-
-
-
-
-    if(type==="p"){
-
-        return isValidPawnMove(
-
-            board,
-
-            fromRow,
-
-            fromCol,
-
-            toRow,
-
-            toCol,
-
-            lastMove
-
-        );
-
-    }
-
-
-
-
-
-
-    if(type==="r"){
-
-
-        if(
-            rowDiff!==0 &&
-            colDiff!==0
-        ){
-
-            return false;
-
-        }
-
-
-        return isPathClear(
-
-            board,
-
-            fromRow,
-
-            fromCol,
-
-            toRow,
-
-            toCol
-
-        );
-
-
-    }
-
-
-
-
-
-
-    if(type==="b"){
-
-
-        if(absRow!==absCol){
-
-            return false;
-
-        }
-
-
-        return isPathClear(
-
-            board,
-
-            fromRow,
-
-            fromCol,
-
-            toRow,
-
-            toCol
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-    if(type==="q"){
-
-
-        if(
-
-            rowDiff!==0 &&
-            colDiff!==0 &&
-            absRow!==absCol
-
-        ){
-
-            return false;
-
-        }
-
-
-
-        return isPathClear(
-
-            board,
-
-            fromRow,
-
-            fromCol,
-
-            toRow,
-
-            toCol
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-    if(type==="n"){
-
-
-        return (
-
-            (absRow===2 && absCol===1)
-
-            ||
-
-            (absRow===1 && absCol===2)
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-    if(type==="k"){
-
-
-
-        if(
-
-            absRow<=1 &&
-            absCol<=1
-
-        ){
-
-            return true;
-
-        }
-
-
-
-
-
-        // Castling
-
-        if(
-
-            absRow===0 &&
-            absCol===2
-
-        ){
-
-
-
-            if(
-
-                color==="w" &&
-                castlingRights.whiteKingMoved
-
-            ){
-
+    // Piece type.
+    const type = piece[1];
+
+    // Difference in rows and columns.
+    const rowDiff = toRow - fromRow;
+    const colDiff = toCol - fromCol;
+
+    switch (type) {
+
+        // Pawn 
+        case "p":
+
+            return isValidPawnMove(
+                board,
+                fromRow,
+                fromCol,
+                toRow,
+                toCol,
+                lastMove
+            );
+
+        //  Rook 
+        case "r":
+
+            // Rook moves in straight lines.
+            if (
+                rowDiff !== 0 &&
+                colDiff !== 0
+            ) {
                 return false;
-
             }
 
+            return isPathClear(
+                board,
+                fromRow,
+                fromCol,
+                toRow,
+                toCol
+            );
 
+        // Bishop 
+        case "b":
 
-            if(
-
-                color==="b" &&
-                castlingRights.blackKingMoved
-
-            ){
-
+            // Bishop moves diagonally.
+            if (
+                Math.abs(rowDiff) !==
+                Math.abs(colDiff)
+            ) {
                 return false;
-
             }
 
+            return isPathClear(
+                board,
+                fromRow,
+                fromCol,
+                toRow,
+                toCol
+            );
 
+        // Queen 
+        case "q":
 
+            // Queen can move like rook.
+            if (
+                rowDiff === 0 ||
+                colDiff === 0
+            ) {
 
-            const rookCol =
-                toCol > fromCol
-                ? 7
-                : 0;
-
-
-
-
-            const rook =
-                board[fromRow][rookCol];
-
-
-
-
-            if(
-                rook !== color+"r"
-            ){
-
-                return false;
-
-            }
-
-
-
-
-            const betweenClear =
-                isPathClear(
-
+                return isPathClear(
                     board,
-
                     fromRow,
-
                     fromCol,
-
-                    fromRow,
-
-                    rookCol
-
+                    toRow,
+                    toCol
                 );
 
+            }
 
+            // Queen can also move like bishop.
+            if (
+                Math.abs(rowDiff) ===
+                Math.abs(colDiff)
+            ) {
 
-            return betweenClear;
+                return isPathClear(
+                    board,
+                    fromRow,
+                    fromCol,
+                    toRow,
+                    toCol
+                );
 
+            }
 
+            return false;
 
-        }
+        //Knight 
+        case "n":
 
+            // Knight moves in L shape.
+            if (
+                (Math.abs(rowDiff) === 2 &&
+                 Math.abs(colDiff) === 1) ||
 
+                (Math.abs(rowDiff) === 1 &&
+                 Math.abs(colDiff) === 2)
+            ) {
+                return true;
+            }
+
+            return false;
+
+        //  King
+        case "k":
+
+            // Normal king move.
+            if (
+                Math.abs(rowDiff) <= 1 &&
+                Math.abs(colDiff) <= 1
+            ) {
+                return true;
+            }
+
+            // Castling.
+            if (
+                rowDiff === 0 &&
+                Math.abs(colDiff) === 2
+            ) {
+
+                const colour = piece[0];
+
+                // White king.
+                if (colour === "w") {
+
+                    if (castlingRights.whiteKingMoved) {
+                        return false;
+                    }
+
+                    // Kingside
+                    if (colDiff === 2) {
+
+                        if (
+                            castlingRights.whiteRightRookMoved
+                        ) {
+                            return false;
+                        }
+
+                        return isPathClear(
+                            board,
+                            fromRow,
+                            fromCol,
+                            fromRow,
+                            7
+                        );
+                    }
+
+                    // Queenside
+                    if (colDiff === -2) {
+
+                        if (
+                            castlingRights.whiteLeftRookMoved
+                        ) {
+                            return false;
+                        }
+
+                        return isPathClear(
+                            board,
+                            fromRow,
+                            fromCol,
+                            fromRow,
+                            0
+                        );
+                    }
+
+                }
+
+                // Black king.
+                else {
+
+                    if (castlingRights.blackKingMoved) {
+                        return false;
+                    }
+
+                    // Kingside
+                    if (colDiff === 2) {
+
+                        if (
+                            castlingRights.blackRightRookMoved
+                        ) {
+                            return false;
+                        }
+
+                        return isPathClear(
+                            board,
+                            fromRow,
+                            fromCol,
+                            fromRow,
+                            7
+                        );
+                    }
+
+                    // Queenside
+                    if (colDiff === -2) {
+
+                        if (
+                            castlingRights.blackLeftRookMoved
+                        ) {
+                            return false;
+                        }
+
+                        return isPathClear(
+                            board,
+                            fromRow,
+                            fromCol,
+                            fromRow,
+                            0
+                        );
+                    }
+
+                }
+
+            }
+
+            return false;
+
+        default:
+            return false;
     }
 
-
-
-
-
-    return false;
-
-
 }
-
 
 export default isValidMove;
