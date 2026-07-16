@@ -1,327 +1,201 @@
+// This file checks whether the king of the given colour
+// is under attack by any opponent piece.
+
 import isPathClear from "/utils/pathCheck.js";
 
+export function isKingInCheck(board, color) {
 
+    // Store the king's position.
+    let kingRow = -1;
+    let kingCol = -1;
 
-export function isKingInCheck(
+    // White pieces start with "w", black with "b".
+    const king = color === "white" ? "wk" : "bk";
 
-    board,
+    // Find the king on the board.
+    for (let row = 0; row < 8; row++) {
 
-    color
+        for (let col = 0; col < 8; col++) {
 
-){
+            if (board[row][col] === king) {
 
-
-    let kingPosition = null;
-
-
-
-
-    for(let row=0; row<8; row++){
-
-
-        for(let col=0; col<8; col++){
-
-
-            if(
-                board[row][col] === color[0]+"k"
-            ){
-
-                kingPosition={
-                    row,
-                    col
-                };
-
+                kingRow = row;
+                kingCol = col;
                 break;
 
             }
 
-
         }
 
-
-        if(kingPosition)
+        if (kingRow !== -1) {
             break;
-
+        }
 
     }
 
-
-
-
-    if(!kingPosition){
-
+    // King not found.
+    if (kingRow === -1) {
         return false;
-
     }
 
+    // Decide which pieces belong to the opponent.
+    let enemyColour;
 
+    if (color === "white") {
+        enemyColour = "b";
+    } else {
+        enemyColour = "w";
+    }
 
+    // Check every enemy piece.
+    for (let row = 0; row < 8; row++) {
 
+        for (let col = 0; col < 8; col++) {
 
-    const enemyColor =
-        color==="white"
-        ? "b"
-        : "w";
+            const piece = board[row][col];
 
-
-
-
-
-
-
-    for(let row=0; row<8; row++){
-
-
-        for(let col=0; col<8; col++){
-
-
-
-            const piece =
-                board[row][col];
-
-
-
-            if(
-
-                piece===""
-
-                ||
-
-                piece[0]!==enemyColor
-
-            ){
-
+            if (piece === "") {
                 continue;
-
             }
 
+            if (piece[0] !== enemyColour) {
+                continue;
+            }
 
+            const type = piece[1];
 
+            const rowDiff = kingRow - row;
+            const colDiff = kingCol - col;
 
-            const type =
-                piece[1];
+            const absRow = Math.abs(rowDiff);
+            const absCol = Math.abs(colDiff);
 
+            // Pawn 
 
+            if (type === "p") {
 
-            const rowDiff =
-                Math.abs(
-                    kingPosition.row-row
-                );
+                let direction;
 
-
-            const colDiff =
-                Math.abs(
-                    kingPosition.col-col
-                );
-
-
-
-
-
-
-            // Pawn
-
-            if(type==="p"){
-
-
-                const direction =
-                    enemyColor==="w"
-                    ? -1
-                    : 1;
-
-
-
-                if(
-
-                    kingPosition.row === row+direction
-
-                    &&
-
-                    colDiff===1
-
-                ){
-
-                    return true;
-
+                if (enemyColour === "w") {
+                    direction = -1;
+                } else {
+                    direction = 1;
                 }
 
+                if (
+                    kingRow === row + direction &&
+                    absCol === 1
+                ) {
+                    return true;
+                }
 
             }
-
-
-
-
-
-
 
             // Knight
 
-            if(type==="n"){
+            if (type === "n") {
 
-
-                if(
-
-                    (rowDiff===2 && colDiff===1)
-
-                    ||
-
-                    (rowDiff===1 && colDiff===2)
-
-                ){
-
+                if (
+                    (absRow === 2 && absCol === 1) ||
+                    (absRow === 1 && absCol === 2)
+                ) {
                     return true;
-
                 }
-
 
             }
 
+            // King 
 
+            if (type === "k") {
 
-
-
-
-
-
-            // King
-
-            if(type==="k"){
-
-
-                if(
-
-                    rowDiff<=1
-
-                    &&
-
-                    colDiff<=1
-
-                    &&
-
-                    (rowDiff!==0 || colDiff!==0)
-
-                ){
-
+                if (
+                    absRow <= 1 &&
+                    absCol <= 1 &&
+                    (absRow !== 0 || absCol !== 0)
+                ) {
                     return true;
-
                 }
-
 
             }
 
+            // Rook
 
+            if (type === "r") {
 
+                if (
+                    absRow === 0 ||
+                    absCol === 0
+                ) {
 
-
-
-
-
-            // Sliding pieces
-
-            if(
-
-                type==="r"
-
-                ||
-
-                type==="b"
-
-                ||
-
-                type==="q"
-
-            ){
-
-
-
-                let validLine=false;
-
-
-
-
-                if(type==="r"){
-
-                    validLine =
-                        rowDiff===0 ||
-                        colDiff===0;
-
-                }
-
-
-
-
-
-                if(type==="b"){
-
-                    validLine =
-                        rowDiff===colDiff;
-
-                }
-
-
-
-
-
-                if(type==="q"){
-
-                    validLine =
-                        rowDiff===0 ||
-                        colDiff===0 ||
-                        rowDiff===colDiff;
-
-                }
-
-
-
-
-
-
-                if(validLine){
-
-
-
-                    if(
-
+                    if (
                         isPathClear(
-
                             board,
-
                             row,
-
                             col,
-
-                            kingPosition.row,
-
-                            kingPosition.col
-
+                            kingRow,
+                            kingCol
                         )
-
-                    ){
-
+                    ) {
                         return true;
-
                     }
 
-
-
                 }
-
 
             }
 
+            // Bishop
 
+            if (type === "b") {
 
+                if (absRow === absCol) {
 
+                    if (
+                        isPathClear(
+                            board,
+                            row,
+                            col,
+                            kingRow,
+                            kingCol
+                        )
+                    ) {
+                        return true;
+                    }
+
+                }
+
+            }
+
+            //  Queen 
+
+            if (type === "q") {
+
+                if (
+                    absRow === absCol ||
+                    absRow === 0 ||
+                    absCol === 0
+                ) {
+
+                    if (
+                        isPathClear(
+                            board,
+                            row,
+                            col,
+                            kingRow,
+                            kingCol
+                        )
+                    ) {
+                        return true;
+                    }
+
+                }
+
+            }
 
         }
 
-
     }
 
-
-
-
+    // No enemy piece can attack the king.
     return false;
-
 
 }
