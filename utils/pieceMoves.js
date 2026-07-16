@@ -3,8 +3,8 @@
 // It only checks movement rules.
 // King safety is checked in checkLogic.js.
 
-import isValidPawnMove from "/utils/pawnMoves.js";
-import isPathClear from "/utils/pathCheck.js";
+import isValidPawnMove from "./pawnMoves.js";
+import isPathClear from "./pathCheck.js";
 
 function isValidMove(
     board,
