@@ -1,5 +1,8 @@
-const boardData = [
+// This file creates the starting position of the chess board.
 
+const initialBoard = [
+
+    // Row 0 - Black major pieces
     [
         "br",
         "bn",
@@ -11,6 +14,7 @@ const boardData = [
         "br"
     ],
 
+    // Row 1 - Black pawns
     [
         "bp",
         "bp",
@@ -22,6 +26,7 @@ const boardData = [
         "bp"
     ],
 
+    // Row 2 - Empty
     [
         "",
         "",
@@ -33,6 +38,7 @@ const boardData = [
         ""
     ],
 
+    // Row 3 - Empty
     [
         "",
         "",
@@ -44,6 +50,7 @@ const boardData = [
         ""
     ],
 
+    // Row 4 - Empty
     [
         "",
         "",
@@ -55,6 +62,7 @@ const boardData = [
         ""
     ],
 
+    // Row 5 - Empty
     [
         "",
         "",
@@ -66,6 +74,7 @@ const boardData = [
         ""
     ],
 
+    // Row 6 - White pawns
     [
         "wp",
         "wp",
@@ -77,6 +86,7 @@ const boardData = [
         "wp"
     ],
 
+    // Row 7 - White major pieces
     [
         "wr",
         "wn",
@@ -90,5 +100,4 @@ const boardData = [
 
 ];
 
-
-export default boardData;
+export default initialBoard;
