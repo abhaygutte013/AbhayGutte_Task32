@@ -1,133 +1,74 @@
-// This file checks whether the current player is in checkmate.
-// A player is in checkmate if:
-// 1. Their king is in check.
-// 2. There is no legal move that removes the check.
+import isValidMove from "/utils/pieceMoves.js";
+import { isKingInCheck } from "/utils/checkLogic.js";
 
-import { isKingInCheck } from "./checkLogic.js";
-import isValidMove from "./pieceMoves.js";
+// Make a copy of the board
+function copyBoard(board) {
+  return board.map((row) =>
+    row.map((piece) => {
+      if (piece === null) return null;
+      return { ...piece };
+    })
+  );
+}
 
-function isCheckmate(
+function isCheckmate(board, color) {
 
-    board,
-    color,
-    lastMove = null,
+  // If king is not in check, it can't be checkmate
+  if (!isKingInCheck(board, color)) {
+    return false;
+  }
 
-    castlingRights = {
+  // Try every possible move for every piece
+  for (let fromRow = 0; fromRow < 8; fromRow++) {
 
-        whiteKingMoved: false,
-        blackKingMoved: false,
+    for (let fromCol = 0; fromCol < 8; fromCol++) {
 
-        whiteLeftRookMoved: false,
-        whiteRightRookMoved: false,
+      const piece = board[fromRow][fromCol];
 
-        blackLeftRookMoved: false,
-        blackRightRookMoved: false
+      if (!piece) {
+        continue;
+      }
 
-    }
+      if (piece.color !== color) {
+        continue;
+      }
 
-) {
+      // Try moving to every square
+      for (let toRow = 0; toRow < 8; toRow++) {
 
-    // If king is not in check,
-    // it cannot be checkmate.
-    if (!isKingInCheck(board, color)) {
-        return false;
-    }
+        for (let toCol = 0; toCol < 8; toCol++) {
 
-    // Try every piece of the current player.
-    for (let fromRow = 0; fromRow < 8; fromRow++) {
+          // Skip illegal moves
+          if (
+            !isValidMove(
+              board,
+              fromRow,
+              fromCol,
+              toRow,
+              toCol
+            )
+          ) {
+            continue;
+          }
 
-        for (let fromCol = 0; fromCol < 8; fromCol++) {
+          // Create a temporary board
+          const newBoard = copyBoard(board);
 
-            const piece = board[fromRow][fromCol];
+          // Make the move
+          newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
+          newBoard[fromRow][fromCol] = null;
 
-            // Skip empty squares.
-            if (piece === "") {
-                continue;
-            }
-
-            // Skip opponent pieces.
-            if (piece[0] !== color[0]) {
-                continue;
-            }
-
-            // Try moving the piece to every square.
-            for (let toRow = 0; toRow < 8; toRow++) {
-
-                for (let toCol = 0; toCol < 8; toCol++) {
-
-                    // Ignore invalid moves.
-                    if (
-                        !isValidMove(
-                            board,
-                            fromRow,
-                            fromCol,
-                            toRow,
-                            toCol,
-                            color,
-                            lastMove,
-                            castlingRights
-                        )
-                    ) {
-                        continue;
-                    }
-
-                    // Create a copy of the board.
-                    const newBoard = board.map(row => [...row]);
-
-                    const movingPiece = newBoard[fromRow][fromCol];
-
-                    // Move the piece.
-                    newBoard[toRow][toCol] = movingPiece;
-                    newBoard[fromRow][fromCol] = "";
-
-                    // Handle castling.
-                    if (
-                        movingPiece[1] === "k" &&
-                        Math.abs(toCol - fromCol) === 2
-                    ) {
-
-                        // Kingside
-                        if (toCol > fromCol) {
-
-                            newBoard[toRow][5] = newBoard[toRow][7];
-                            newBoard[toRow][7] = "";
-
-                        }
-
-                        // Queenside
-                        else {
-
-                            newBoard[toRow][3] = newBoard[toRow][0];
-                            newBoard[toRow][0] = "";
-
-                        }
-
-                    }
-
-                    // If this move saves the king,
-                    // then it is not checkmate.
-                    if (
-                        !isKingInCheck(
-                            newBoard,
-                            color
-                        )
-                    ) {
-
-                        return false;
-
-                    }
-
-                }
-
-            }
-
+          // Is the king still in check?
+          if (!isKingInCheck(newBoard, color)) {
+            return false;
+          }
         }
-
+      }
     }
+  }
 
-    // No move can save the king.
-    return true;
-
+  // No move can save the king
+  return true;
 }
 
 export default isCheckmate;
