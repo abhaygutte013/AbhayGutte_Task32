@@ -1,83 +1,88 @@
 # React Chess Game
-## About Project
-This project is made using React JS. It is a browser-based chess game where two players can play chess by following standard chess rules.
-The main aim of this project is to understand how React state management works and how complex game logic can be implemented using components and utility functions.
-In this project, I created a chess board, implemented piece movements, turn management, check and checkmate detection, timers, captured pieces tracking, move history, undo functionality, and pawn promotion.
+## About the Project
+
+This project is a Chess Game developed using React JS. The main aim of this project is to understand React components, state management, event handling, and implementing chess game logic using JavaScript.
+The game follows the basic rules of chess and includes features such as legal move validation, check detection, checkmate detection, castling, en passant, pawn promotion, move history, captured pieces, timers, and undo functionality.
+
+## Objectives
+
+- Learn React component-based development.
+- Understand state management using React Hooks.
+- Implement chess rules using JavaScript.
+- Display game status using a responsive user interface.
+- Improve problem-solving by implementing real game logic.
 
 ## Features
 
-- Complete 8x8 chess board
-- Display all chess pieces
-- Move pieces according to chess rules
-- Turn based gameplay
-- Legal move highlighting
-- Pawn first double move
-- Pawn capture
-- En passant support
-- Castling support
-- Pawn promotion
+- Interactive 8 × 8 chess board
+- All standard chess pieces
+- Legal move validation
 - Check detection
 - Checkmate detection
-- Captured pieces display
-- Move notation display
-- Undo previous move
-- Restart game option
-- Player timers
-- Responsive chess board design
+- Castling (King Side and Queen Side)
+- En Passant
+- Pawn Promotion using an in-game selection window
+- Move History panel
+- Captured Pieces display
+- Player Timer
+- Undo Last Move
+- Restart Game
+- Active Player Highlight
+- Responsive Design
 
 ## Technologies Used
 
 - React JS
-- JavaScript
-- React Hooks (useState, useEffect)
-- CSS
-- Vite
+- JavaScript (ES6)
+- HTML5
+- CSS3
 
-## Folder Structure
+## Project Structure
 
--src{app.jsx,app.css,index.css,main.jsx}
--components{chessboard.jsx,timer.jsx,square.jsx}
--utils{checklogic.js,checkmatelogic.js,notation.js,initialboard.js,pawnmoves.js,piecemoves.js,pathCheck.js}
-
+- components{chessboard.jsx,square.jsx,timer.jsx}
+- utils{piecemoves.js,pawnmoves.js,pathcheck.js,checklogic.js,checkmatelogic.js,notation.js,initialboard.js}
+- src{app.css,app.jsx,index.css,main.jsx}
 
 ## How to Run
 
-1. First install all packages:npm install
+1. Clone or download the project.
+2. Install the required packages:npm install
+3. Start the development server:npm run dev
+4. Open the browser and visit:http://localhost:5173
 
-2. Start the project:npm run dev
+## Chess Rules Implemented
 
-3. Open browser and visit:http://localhost:5173/
+- Normal piece movement
+- Pawn first move
+- Pawn diagonal capture
+- En Passant
+- Castling
+- Pawn Promotion
+- Check
+- Checkmate
+- Move validation
+- Turn switching
+- Capture handling
 
+## Learning Outcomes
 
-## What I Learned
+Through this project, I learned:
 
-While creating this project I learned how to manage complex state in React using useState and useEffect.
-I learned how to divide a large application into smaller reusable components like ChessBoard, Square, and Timer.
-I also understood how game logic works by creating separate utility files for piece movement, check detection, and checkmate detection.
-Another thing I learned was how to handle user interaction, update the board dynamically, and maintain game information like moves, captured pieces, and timers.
-
-## Challenges I Faced
-
-At first I found it difficult to manage the movement rules of different chess pieces because every piece has different conditions.
-I faced issues while implementing check and checkmate detection because the program needed to check every possible move before deciding the game status.
-Handling special moves like castling, en passant, and pawn promotion also required extra logic.
-I also faced some import and file structure errors while connecting different utility files. After organizing the project properly, the errors were fixed.
+- How React components work together.
+- Managing application state using useState and useEffect.
+- Implementing chess rules using JavaScript.
+- Handling user interactions.
+- Creating reusable utility functions.
+- Maintaining move history and game state.
+- Designing a responsive user interface.
 
 ## Future Improvements
 
-Some features can still be added like:
-- Online multiplayer mode
-- AI opponent using chess engine
-- Move validation with complete FIDE rules
-- Game save and load option
-- Player profiles
-- Chess opening suggestions
-- Better animations for piece movement
+- Stalemate detection
+- Draw by repetition
+- Fifty-move rule
+- PGN file export
 - Sound effects
-
-## Conclusion
-
-This project helped me understand React concepts in a practical way. I learned how to manage complex application states, create reusable components, and implement logic-heavy applications.
-Building this chess game improved my understanding of JavaScript problem solving and React component communication. Overall, it was a challenging but useful project for improving my frontend development skills.
-This project helped me understand React concepts like components, state, and event handling.
-Creating a chess game was challenging because many rules have to work together, but it helped me improve my problem-solving and coding skills.
+- Multiplayer mode
+- AI opponent
+- Online gameplay
