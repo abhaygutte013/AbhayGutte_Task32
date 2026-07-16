@@ -1,73 +1,69 @@
-// This function creates the chess notation
-// for every move played in the game.
+// Convert board position into chess notation
 
-function getNotation(
-    piece,
-    row,
-    col,
-    captured,
-    check,
-    checkmate,
-    promotion = null
-) {
+function getNotation(piece, fromRow, fromCol, toRow, toCol, capturedPiece) {
 
-    // Files of the chess board.
-    const files = [
+  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h"
+  const file = files[toCol];
+  const rank = 8 - toRow;
 
-    ];
+  // Piece letter
+  let pieceLetter = "";
 
-    // Symbols used for pieces.
-    const pieceLetter = {
+  switch (piece.type) {
+    case "king":
+      pieceLetter = "K";
+      break;
 
-        r: "R",
-        n: "N",
-        b: "B",
-        q: "Q",
-        k: "K"
+    case "queen":
+      pieceLetter = "Q";
+      break;
 
-    };
+    case "rook":
+      pieceLetter = "R";
+      break;
 
-    const type = piece[1];
+    case "bishop":
+      pieceLetter = "B";
+      break;
 
-    let notation = "";
+    case "knight":
+      pieceLetter = "N";
+      break;
 
-    // Piece Name
-    // Pawns do not use a letter.
-    if (type !== "p") {
-        notation += pieceLetter[type];
+    default:
+      pieceLetter = "";
+  }
+
+  let move = "";
+
+  // Pawn moves
+  if (piece.type === "pawn") {
+
+    // Pawn capture
+    if (capturedPiece) {
+      move = files[fromCol] + "x" + file + rank;
     }
-    // Capture
-    if (captured) {
-        // Pawn captures include file letter.
-        if (type === "p") {
-            notation += files[col];
-        }
-        notation += "x";
+
+    // Normal pawn move
+    else {
+      move = file + rank;
     }
-    // Destination Square
-    notation += files[col];
-    notation += (8 - row);
-    // Pawn Promotion
-    if (promotion !== null) {
-        notation += "=";
-        notation += promotion.toUpperCase();
+  }
+
+  // Other pieces
+  else {
+
+    if (capturedPiece) {
+      move = pieceLetter + "x" + file + rank;
     }
-    // Check / Checkmate
-    if (checkmate) {
-        notation += "#";
+
+    else {
+      move = pieceLetter + file + rank;
     }
-    else if (check) {
-        notation += "+";
-    }
-    return notation;
+  }
+
+  return move;
 }
+
 export default getNotation;
