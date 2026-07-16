@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-import Square from "/components/Square.jsx";
-import Timer from "/components/Timer.jsx";
+import Square from "./Square.jsx";
+import Timer from "./Timer.jsx";
 
-import initialBoard from "/utils/initialBoard.js";
-import isValidMove from "/utils/pieceMoves.js";
-import { isKingInCheck } from "/utils/checkLogic.js";
-import isCheckmate from "/utils/checkmateLogic.js";
-import getNotation from "/utils/notation.js";
+import initialBoard from "../utils/initialBoard.js";
+import isValidMove from "../utils/pieceMoves.js";
+import { isKingInCheck } from "../utils/checkLogic.js";
+import isCheckmate from "../utils/checkmateLogic.js";
+import getNotation from "../utils/notation.js";
 
 function ChessBoard() {
 
