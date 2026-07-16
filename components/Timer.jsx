@@ -1,58 +1,57 @@
+import { useEffect } from "react";
+
 function Timer({
-    whiteTime,
-    blackTime,
-    turn
+  time,
+  setTime,
+  currentPlayer,
+  player,
+  gameOver,
 }) {
-    function formatTime(seconds) {
-    if (seconds === undefined || seconds === null || isNaN(seconds)) {
-        seconds = 0;
-    }
-    const minutes = Math.floor(seconds / 60);
-    const secondsLeft = seconds % 60;
-    return (
-        `${String(minutes).padStart(2,"0")}:${String(secondsLeft).padStart(2,"0")}`
-    );
+
+  useEffect(() => {
+
+    // Stop timer if game is over
+    if (gameOver) return;
+
+    // Run timer only for current player
+    if (currentPlayer !== player) return;
+
+    const timer = setInterval(() => {
+
+      setTime((prevTime) => {
+
+        if (prevTime <= 0) {
+          clearInterval(timer);
+          return 0;
+        }
+
+        return prevTime - 1;
+      });
+
+    }, 1000);
+
+    return () => clearInterval(timer);
+
+  }, [currentPlayer, player, gameOver, setTime]);
+
+  // Convert seconds into MM:SS
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+
+  const displayTime =
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(seconds).padStart(2, "0");
+
+  return (
+    <h1
+      className={`timer ${
+        player === "white" ? "white-time" : "black-time"
+      }`}
+    >
+      {displayTime}
+    </h1>
+  );
 }
-    return (
-        <div className="timer">
-            <div
-                className={
-                    turn === "white"
-                    ? "time-box active-time"
-                    : "time-box"
-                }
-            >
-                <h3>
-                    White
-                </h3>
-                <p>
-                    {formatTime(whiteTime)}
-                </p>
-            </div>
-            <div
 
-                className={
-
-                    turn === "black"
-
-                    ? "time-box active-time"
-
-                    : "time-box"
-
-                }
-            >
-                <h3>
-                    Black
-                </h3>
-
-
-                <p>
-                    {formatTime(blackTime)}
-                </p>
-
-
-            </div>
-        </div>
-    );
-}
 export default Timer;
