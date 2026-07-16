@@ -1,7 +1,7 @@
 // This file checks whether the king of the given colour
 // is under attack by any opponent piece.
 
-import isPathClear from "/utils/pathCheck.js";
+import isPathClear from "./pathCheck.js";
 
 export function isKingInCheck(board, color) {
 
