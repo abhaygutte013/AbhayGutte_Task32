@@ -1,28 +1,22 @@
-import ChessBoard from "/components/ChessBoard.jsx";
+// App.jsx
+
 import "./App.css";
+import ChessBoard from "/components/ChessBoard.jsx";
 
-
-function App(){
-
+function App() {
 
     return (
 
         <div className="app">
 
-
-            <h1>
-                React Chess
-            </h1>
-
+            <h1>React Chess Game</h1>
 
             <ChessBoard />
-
 
         </div>
 
     );
 
 }
-
 
 export default App;
