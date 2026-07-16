@@ -1,22 +1,17 @@
+// This function creates the chess notation
+// for every move played in the game.
+
 function getNotation(
-
     piece,
-
     row,
-
     col,
-
     captured,
-
     check,
-
-    mate,
-
+    checkmate,
     promotion = null
+) {
 
-){
-
-
+    // Files of the chess board.
     const files = [
 
         "a",
@@ -30,133 +25,49 @@ function getNotation(
 
     ];
 
+    // Symbols used for pieces.
+    const pieceLetter = {
 
-
-
-    const pieceNames = {
-
-        r:"R",
-
-        n:"N",
-
-        b:"B",
-
-        q:"Q",
-
-        k:"K"
+        r: "R",
+        n: "N",
+        b: "B",
+        q: "Q",
+        k: "K"
 
     };
 
+    const type = piece[1];
 
+    let notation = "";
 
-
-
-    const type =
-        piece[1];
-
-
-
-    let notation="";
-
-
-
-
-
-    if(type!=="p"){
-
-
-        notation +=
-            pieceNames[type];
-
-
+    // Piece Name
+    // Pawns do not use a letter.
+    if (type !== "p") {
+        notation += pieceLetter[type];
     }
-
-
-
-
-
-
-    if(captured){
-
-
-
-        if(type==="p"){
-
-
-            notation +=
-                files[col];
-
-
+    // Capture
+    if (captured) {
+        // Pawn captures include file letter.
+        if (type === "p") {
+            notation += files[col];
         }
-
-
-
         notation += "x";
-
-
     }
-
-
-
-
-
-
-    notation +=
-
-        files[col]
-
-        +
-
-        (8-row);
-
-
-
-
-
-
-
-    if(promotion){
-
-
-        notation +=
-            "=" +
-            promotion.toUpperCase();
-
-
+    // Destination Square
+    notation += files[col];
+    notation += (8 - row);
+    // Pawn Promotion
+    if (promotion !== null) {
+        notation += "=";
+        notation += promotion.toUpperCase();
     }
-
-
-
-
-
-
-
-    if(mate){
-
-
+    // Check / Checkmate
+    if (checkmate) {
         notation += "#";
-
-
     }
-
-    else if(check){
-
-
+    else if (check) {
         notation += "+";
-
-
     }
-
-
-
-
-
-
     return notation;
-
-
 }
-
-
-
 export default getNotation;
