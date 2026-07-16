@@ -1,1188 +1,404 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-import Square from "./Square.jsx";
-import Timer from "./Timer.jsx";
+import Square from "/components/Square.jsx";
 
-import initialBoard from "../utils/initialBoard.js";
-import isValidMove from "../utils/pieceMoves.js";
-import { isKingInCheck } from "../utils/checkLogic.js";
-import isCheckmate from "../utils/checkmateLogic.js";
-import getNotation from "../utils/notation.js";
+import initialBoard from "/utils/initialBoard.js";
+import isValidMove from "/utils/pieceMoves.js";
+import { isKingInCheck } from "/utils/checkLogic.js";
+import isCheckmate from "/utils/checkmateLogic.js";
+import getNotation from "/utils/notation.js";
 
-function ChessBoard() {
+function ChessBoard({
+  currentPlayer,
+  setCurrentPlayer,
 
-    // Board State
+  capturedWhite,
+  setCapturedWhite,
 
-    const [board, setBoard] = useState(
-        initialBoard.map(row => [...row])
+  capturedBlack,
+  setCapturedBlack,
+
+  moveHistory,
+  setMoveHistory,
+
+  gameOver,
+  setGameOver,
+}) {
+
+  // Chess board
+  const [board, setBoard] = useState(initialBoard);
+
+  // Selected square
+  const [selected, setSelected] = useState(null);
+
+  // Store previous boards (Undo)
+  const [previousBoards, setPreviousBoards] = useState([]);
+
+  // Message shown below board
+  const [message, setMessage] = useState("");
+
+  // King positions
+  const [whiteKingMoved, setWhiteKingMoved] = useState(false);
+  const [blackKingMoved, setBlackKingMoved] = useState(false);
+
+  // Rooks (used later for castling)
+  const [whiteLeftRookMoved, setWhiteLeftRookMoved] = useState(false);
+  const [whiteRightRookMoved, setWhiteRightRookMoved] = useState(false);
+
+  const [blackLeftRookMoved, setBlackLeftRookMoved] = useState(false);
+  const [blackRightRookMoved, setBlackRightRookMoved] = useState(false);
+
+  // En Passant
+  const [lastMove, setLastMove] = useState(null);
+
+  // Deep copy board
+  function copyBoard(oldBoard) {
+    return oldBoard.map((row) =>
+      row.map((piece) => {
+        if (piece === null) return null;
+        return { ...piece };
+      })
     );
+  }
 
-    const [selected, setSelected] = useState(null);
+  // Restart the game
+  function restartGame() {
 
-    const [legalMoves, setLegalMoves] = useState([]);
+    setBoard(copyBoard(initialBoard));
 
-    // Game State
+    setSelected(null);
 
-    const [turn, setTurn] = useState("white");
+    setCapturedWhite([]);
+    setCapturedBlack([]);
 
-    const [message, setMessage] = useState("");
+    setMoveHistory([]);
 
-    const [gameOver, setGameOver] = useState(false);
+    setPreviousBoards([]);
 
-    // Timers
+    setCurrentPlayer("white");
 
-    const [whiteTime, setWhiteTime] = useState(600);
+    setGameOver(false);
 
-    const [blackTime, setBlackTime] = useState(600);
+    setMessage("");
 
-    // Move History
+    setWhiteKingMoved(false);
+    setBlackKingMoved(false);
 
-    const [moves, setMoves] = useState([]);
+    setWhiteLeftRookMoved(false);
+    setWhiteRightRookMoved(false);
 
-    const [history, setHistory] = useState([]);
+    setBlackLeftRookMoved(false);
+    setBlackRightRookMoved(false);
 
-    const [lastMove, setLastMove] = useState(null);
+    setLastMove(null);
+  }
 
-    // Captured Pieces
+  // Undo last move
+  function undoMove() {
 
-    const [capturedWhite, setCapturedWhite] = useState([]);
-
-    const [capturedBlack, setCapturedBlack] = useState([]);
-
-    // Castling Rights
-
-    const [castlingRights, setCastlingRights] = useState({
-
-        whiteKingMoved: false,
-        blackKingMoved: false,
-
-        whiteLeftRookMoved: false,
-        whiteRightRookMoved: false,
-
-        blackLeftRookMoved: false,
-        blackRightRookMoved: false
-
-    });
-
-    // Pawn Promotion
-
-    const [promotion, setPromotion] = useState({
-
-        show: false,
-
-        row: null,
-
-        col: null,
-
-        colour: "",
-
-        from: null
-
-    });
-
-    // Chess Piece Symbols
-
-    const pieceNames = {
-
-        wp: "♙",
-        wr: "♖",
-        wn: "♘",
-        wb: "♗",
-        wq: "♕",
-        wk: "♔",
-
-        bp: "♟",
-        br: "♜",
-        bn: "♞",
-        bb: "♝",
-        bq: "♛",
-        bk: "♚"
-
-    };
-
-    // Timer
-
-    useEffect(() => {
-
-        if (gameOver) {
-            return;
-        }
-
-        const timer = setInterval(() => {
-
-            if (turn === "white") {
-
-                setWhiteTime(time => {
-
-                    if (time <= 1) {
-
-                        clearInterval(timer);
-
-                        setGameOver(true);
-
-                        setMessage("Black Wins! Time Over");
-
-                        return 0;
-
-                    }
-
-                    return time - 1;
-
-                });
-
-            }
-
-            else {
-
-                setBlackTime(time => {
-
-                    if (time <= 1) {
-
-                        clearInterval(timer);
-
-                        setGameOver(true);
-
-                        setMessage("White Wins! Time Over");
-
-                        return 0;
-
-                    }
-
-                    return time - 1;
-
-                });
-
-            }
-
-        }, 1000);
-
-        return () => clearInterval(timer);
-
-    }, [turn, gameOver]);
-
-    // Show legal moves
-
-    function showLegalMoves(row, col) {
-
-        const possibleMoves = [];
-
-        for (let r = 0; r < 8; r++) {
-
-            for (let c = 0; c < 8; c++) {
-
-                if (
-
-                    isValidMove(
-
-                        board,
-
-                        row,
-
-                        col,
-
-                        r,
-
-                        c,
-
-                        turn,
-
-                        lastMove,
-
-                        castlingRights
-
-                    )
-
-                ) {
-
-                    possibleMoves.push({
-
-                        row: r,
-                        col: c
-
-                    });
-
-                }
-
-            }
-
-        }
-
-        setLegalMoves(possibleMoves);
-
+    if (previousBoards.length === 0) {
+      return;
     }
 
-// Handle Square Click
+    const oldBoard = previousBoards[previousBoards.length - 1];
 
-function handleClick(row, col) {
+    setBoard(oldBoard);
 
-    // Stop if game is over.
+    setPreviousBoards(previousBoards.slice(0, -1));
+
+    setCurrentPlayer(
+      currentPlayer === "white" ? "black" : "white"
+    );
+
+    setMessage("Previous move restored.");
+  }
+
+  // onSquareClick() will be added in Part 2.
+    // Handle click on a square
+  function handleSquareClick(row, col) {
+
+    // Stop if game has ended
     if (gameOver) {
-        return;
+      return;
     }
 
     const clickedPiece = board[row][col];
 
-    // First Click (Select Piece)
-
+    // -----------------------------
+    // First Click (Select a Piece)
+    // -----------------------------
     if (selected === null) {
 
-        // Only current player's piece can be selected.
-        if (
-            clickedPiece !== "" &&
-            clickedPiece[0] === turn[0]
-        ) {
-
-            setSelected({
-                row,
-                col
-            });
-
-            showLegalMoves(row, col);
-
-        }
-
+      // Empty square
+      if (!clickedPiece) {
         return;
+      }
 
+      // Wrong player's piece
+      if (clickedPiece.color !== currentPlayer) {
+        setMessage("Select your own piece.");
+        return;
+      }
+
+      // Select piece
+      setSelected({
+        row,
+        col,
+      });
+
+      setMessage("");
+
+      return;
     }
 
-    // Clicking same square again
-
+    // -----------------------------
+    // Same square clicked again
+    // -----------------------------
     if (
-        selected.row === row &&
-        selected.col === col
+      selected.row === row &&
+      selected.col === col
     ) {
-
-        setSelected(null);
-        setLegalMoves([]);
-
-        return;
-
+      setSelected(null);
+      return;
     }
 
-    // Change selected piece
+    const fromRow = selected.row;
+    const fromCol = selected.col;
 
-    if (
-        clickedPiece !== "" &&
-        clickedPiece[0] === turn[0]
-    ) {
+    const movingPiece = board[fromRow][fromCol];
 
-        setSelected({
-            row,
-            col
-        });
+    // -----------------------------
+    // Check legal move
+    // -----------------------------
+    const legal = isValidMove(
+      board,
+      fromRow,
+      fromCol,
+      row,
+      col
+    );
 
-        showLegalMoves(row, col);
-
-        return;
-
+    if (!legal) {
+      setMessage("Illegal move.");
+      setSelected(null);
+      return;
     }
 
-    // Check move validity
-
-    const from = selected;
-
-    const movingPiece =
-        board[from.row][from.col];
-
-    if (
-
-        !isValidMove(
-
-            board,
-
-            from.row,
-            from.col,
-
-            row,
-            col,
-
-            turn,
-
-            lastMove,
-
-            castlingRights
-
-        )
-
-    ) {
-
-        setSelected(null);
-
-        setLegalMoves([]);
-
-        return;
-
-    }
-
-    // Save current state for Undo
-
-    setHistory(old => [
-
-        ...old,
-
-        {
-
-            board: board.map(r => [...r]),
-
-            turn,
-
-            lastMove,
-
-            castlingRights: {
-
-                ...castlingRights
-
-            },
-
-            capturedWhite: [...capturedWhite],
-
-            capturedBlack: [...capturedBlack],
-
-            whiteTime,
-
-            blackTime
-
-        }
-
+    // Save board for Undo
+    setPreviousBoards((prev) => [
+      ...prev,
+      copyBoard(board),
     ]);
 
-    // Create new board
+    // Copy board
+    const newBoard = copyBoard(board);
 
-    const newBoard =
-        board.map(r => [...r]);
+    // Store captured piece
+    const capturedPiece = newBoard[row][col];
 
-    const capturedPiece =
-        newBoard[row][col];
+    // Move piece
+    newBoard[row][col] = movingPiece;
+    newBoard[fromRow][fromCol] = null;
 
-    // Move piece.
-
-    newBoard[row][col] =
-        movingPiece;
-
-    newBoard[from.row][from.col] =
-        "";
-
-    // Castling
-
+    // -----------------------------
+    // Don't allow own king in check
+    // -----------------------------
     if (
-
-        movingPiece[1] === "k" &&
-
-        Math.abs(col - from.col) === 2
-
+      isKingInCheck(newBoard, currentPlayer)
     ) {
+      setMessage("Your king is in check!");
+      setSelected(null);
+      return;
+    }
 
-        // Kingside
+    // Update board
+    setBoard(newBoard);
 
-        if (col > from.col) {
+    // Clear selection
+    setSelected(null);
 
-            newBoard[row][5] =
-                newBoard[row][7];
+    // Clear message
+    setMessage("");
 
-            newBoard[row][7] =
-                "";
+    // Part 3 will continue here...
+        // -----------------------------
+    // Save captured pieces
+    // -----------------------------
+    if (capturedPiece) {
 
-        }
+      if (capturedPiece.color === "white") {
 
-        // Queenside
+        setCapturedWhite((prev) => [
+          ...prev,
+          capturedPiece,
+        ]);
 
-        else {
+      } else {
 
-            newBoard[row][3] =
-                newBoard[row][0];
+        setCapturedBlack((prev) => [
+          ...prev,
+          capturedPiece,
+        ]);
 
-            newBoard[row][0] =
-                "";
-
-        }
+      }
 
     }
 
-    // En Passant
-
-    if (
-
-        movingPiece[1] === "p" &&
-
-        from.col !== col &&
-
-        capturedPiece === ""
-
-    ) {
-
-        newBoard[from.row][col] =
-            "";
-
-    }
-
-    // Prevent Self Check
-
-    if (
-
-        isKingInCheck(
-
-            newBoard,
-
-            turn
-
-        )
-
-    ) {
-
-        setSelected(null);
-
-        setLegalMoves([]);
-
-        return;
-
-    }
-
-    // Update Castling Rights
-
-    const newCastlingRights = {
-
-        ...castlingRights
-
-    };
-
-    // White King
-
-    if (movingPiece === "wk") {
-
-        newCastlingRights.whiteKingMoved = true;
-
-    }
-
-    // Black King
-
-    if (movingPiece === "bk") {
-
-        newCastlingRights.blackKingMoved = true;
-
-    }
-
-    // White Left Rook
-
-    if (
-        movingPiece === "wr" &&
-        from.row === 7 &&
-        from.col === 0
-    ) {
-
-        newCastlingRights.whiteLeftRookMoved = true;
-
-    }
-
-    // White Right Rook
-
-    if (
-        movingPiece === "wr" &&
-        from.row === 7 &&
-        from.col === 7
-    ) {
-
-        newCastlingRights.whiteRightRookMoved = true;
-
-    }
-
-    // Black Left Rook
-
-    if (
-        movingPiece === "br" &&
-        from.row === 0 &&
-        from.col === 0
-    ) {
-
-        newCastlingRights.blackLeftRookMoved = true;
-
-    }
-
-    // Black Right Rook
-
-    if (
-        movingPiece === "br" &&
-        from.row === 0 &&
-        from.col === 7
-    ) {
-
-        newCastlingRights.blackRightRookMoved = true;
-
-    }
-
+    // -----------------------------
     // Pawn Promotion
+    // -----------------------------
+    if (movingPiece.type === "pawn") {
 
-    if (
-        movingPiece === "wp" &&
+      if (
+        movingPiece.color === "white" &&
         row === 0
-    ) {
+      ) {
 
-        setPromotion({
+        newBoard[row][col] = {
+          type: "queen",
+          color: "white",
+          symbol: "♕",
+        };
 
-            show: true,
+      }
 
-            row,
-
-            col,
-
-            colour: "w",
-
-            from
-
-        });
-
-        setBoard(newBoard);
-
-        setCastlingRights(newCastlingRights);
-
-        return;
-
-    }
-
-    if (
-        movingPiece === "bp" &&
+      if (
+        movingPiece.color === "black" &&
         row === 7
-    ) {
+      ) {
 
-        setPromotion({
+        newBoard[row][col] = {
+          type: "queen",
+          color: "black",
+          symbol: "♛",
+        };
 
-            show: true,
+      }
 
-            row,
-
-            col,
-
-            colour: "b",
-
-            from
-
-        });
-
-        setBoard(newBoard);
-
-        setCastlingRights(newCastlingRights);
-
-        return;
+      setBoard(copyBoard(newBoard));
 
     }
 
-    // Find Next Player
+    // -----------------------------
+    // Add move to history
+    // -----------------------------
+    const move = getNotation(
+      movingPiece,
+      fromRow,
+      fromCol,
+      row,
+      col,
+      capturedPiece
+    );
 
-    const nextTurn =
-        turn === "white"
-            ? "black"
-            : "white";
+    setMoveHistory((prev) => [
+      ...prev,
+      move,
+    ]);
 
-    // Check & Checkmate
+    // -----------------------------
+    // Change turn
+    // -----------------------------
+    const nextPlayer =
+      currentPlayer === "white"
+        ? "black"
+        : "white";
 
-    const check =
-        isKingInCheck(
-            newBoard,
-            nextTurn
-        );
+    setCurrentPlayer(nextPlayer);
 
-    const checkmate =
-        check &&
-        isCheckmate(
-
-            newBoard,
-
-            nextTurn,
-
-            {
-
-                piece: movingPiece,
-
-                fromRow: from.row,
-
-                fromCol: from.col,
-
-                toRow: row,
-
-                toCol: col
-
-            },
-
-            newCastlingRights
-
-        );
-
-    // Move Notation
-    
-    let notation;
-
+    // -----------------------------
+    // Check
+    // -----------------------------
     if (
-        movingPiece[1] === "k" &&
-        Math.abs(col - from.col) === 2
+      isKingInCheck(newBoard, nextPlayer)
     ) {
 
-        notation =
-            col > from.col
-                ? "O-O"
-                : "O-O-O";
-
-    }
-    else {
-
-        notation = getNotation(
-
-            movingPiece,
-
-            row,
-
-            col,
-
-            capturedPiece !== "",
-
-            check,
-
-            checkmate
-
-        );
-
-    }
-    // Captured Pieces
-
-    if (capturedPiece !== "") {
-
-        if (capturedPiece[0] === "w") {
-
-            setCapturedWhite(old => [
-
-                ...old,
-
-                capturedPiece
-
-            ]);
-
-        }
-
-        else {
-
-            setCapturedBlack(old => [
-
-                ...old,
-
-                capturedPiece
-
-            ]);
-
-        }
+      setMessage(
+        nextPlayer + " King is in Check!"
+      );
 
     }
 
-    // Save Move
+    // -----------------------------
+    // Checkmate
+    // -----------------------------
+    if (
+      isCheckmate(newBoard, nextPlayer)
+    ) {
 
-    setBoard(newBoard);
+      setMessage(
+        "Checkmate! " +
+        currentPlayer +
+        " wins!"
+      );
 
-    setMoves(old => [
-
-        ...old,
-
-        notation
-
-    ]);
-
-    setLastMove({
-
-        piece: movingPiece,
-
-        fromRow: from.row,
-
-        fromCol: from.col,
-
-        toRow: row,
-
-        toCol: col
-
-    });
-
-    setCastlingRights(
-        newCastlingRights
-    );
-
-    // Message
-
-    if (checkmate) {
-
-        setGameOver(true);
-
-        setMessage(
-            `${turn} wins by Checkmate`
-        );
+      setGameOver(true);
 
     }
 
-    else if (check) {
+  }
+    return (
+    <div className="center-panel">
+
+      {/* Chess Board */}
+      <div className="board">
+
+        {board.map((boardRow, rowIndex) =>
+          boardRow.map((piece, colIndex) => (
+
+            <Square
+              key={`${rowIndex}-${colIndex}`}
+              piece={piece}
+              row={rowIndex}
+              col={colIndex}
+              onClick={handleSquareClick}
+              isSelected={
+                selected &&
+                selected.row === rowIndex &&
+                selected.col === colIndex
+              }
+            />
+
+          ))
+        )}
+
+      </div>
+
+      {/* Game Message */}
+      <div
+        style={{
+          marginTop: "20px",
+          minHeight: "30px",
+          fontSize: "20px",
+          fontWeight: "bold",
+          color: "#ffd700",
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </div>
+
+      {/* Buttons */}
+      <div className="button-group">
+
+        <button
+          className="undo-btn"
+          onClick={undoMove}
+        >
+          Undo Move
+        </button>
+
+        <button
+          className="restart-btn"
+          onClick={restartGame}
+        >
+          Restart Game
+        </button>
+
+      </div>
 
-        setMessage("Check");
-
-    }
-
-    else {
-
-        setMessage("");
-
-    }
-
-    // Next Turn
-
-    setTurn(nextTurn);
-
-    setSelected(null);
-
-    setLegalMoves([]);
-
-}
-
-// Handle Pawn Promotion
-
-function handlePromotion(pieceType) {
-
-    const newBoard =
-        board.map(row => [...row]);
-
-    // Replace pawn with selected piece.
-
-    newBoard[promotion.row][promotion.col] =
-        promotion.colour + pieceType;
-
-    const nextTurn =
-        turn === "white"
-            ? "black"
-            : "white";
-
-    const check =
-        isKingInCheck(
-            newBoard,
-            nextTurn
-        );
-
-    const checkmate =
-        check &&
-        isCheckmate(
-
-            newBoard,
-
-            nextTurn,
-
-            lastMove,
-
-            castlingRights
-
-        );
-
-    // Add promotion notation.
-
-    let notation =
-        getNotation(
-
-            promotion.colour + pieceType,
-
-            promotion.row,
-
-            promotion.col,
-
-            false,
-
-            check,
-
-            checkmate
-
-        );
-
-    notation += "=" + pieceType.toUpperCase();
-
-    setBoard(newBoard);
-
-    setMoves(old => [
-
-        ...old,
-
-        notation
-
-    ]);
-
-    setPromotion({
-
-        show: false,
-
-        row: null,
-
-        col: null,
-
-        colour: "",
-
-        from: null
-
-    });
-
-    if (checkmate) {
-
-        setGameOver(true);
-
-        setMessage(
-            `${turn} wins by Checkmate`
-        );
-
-    }
-
-    else if (check) {
-
-        setMessage("Check");
-
-    }
-
-    else {
-
-        setMessage("");
-
-    }
-
-    setTurn(nextTurn);
-
-}
-
-// Undo Move
-
-function undoMove() {
-
-    if (history.length === 0) {
-        return;
-    }
-
-    const previous =
-        history[history.length - 1];
-
-    setBoard(previous.board);
-
-    setTurn(previous.turn);
-
-    setLastMove(previous.lastMove);
-
-    setCastlingRights(
-        previous.castlingRights
-    );
-
-    setCapturedWhite(
-        previous.capturedWhite
-    );
-
-    setCapturedBlack(
-        previous.capturedBlack
-    );
-
-    setWhiteTime(
-        previous.whiteTime
-    );
-
-    setBlackTime(
-        previous.blackTime
-    );
-
-    setHistory(old =>
-        old.slice(0, -1)
-    );
-
-    setMoves(old =>
-        old.slice(0, -1)
-    );
-
-    setSelected(null);
-
-    setLegalMoves([]);
-
-    setMessage("");
-
-    setPromotion({
-
-        show: false,
-
-        row: null,
-
-        col: null,
-
-        colour: "",
-
-        from: null
-
-    });
-
-}
-
-// Restart Game
-
-function resetGame() {
-
-    setBoard(
-        initialBoard.map(
-            row => [...row]
-        )
-    );
-    setSelected(null);
-    setLegalMoves([]);
-    setTurn("white");
-    setMessage("");
-    setGameOver(false);
-    setWhiteTime(600);
-    setBlackTime(600);
-    setMoves([]);
-    setHistory([]);
-    setCapturedWhite([]);
-    setCapturedBlack([]);
-    setLastMove(null);
-    setPromotion({
-        show: false,
-        row: null,
-        col: null,
-        colour: "",
-        from: null
-    });
-
-    setCastlingRights({
-
-        whiteKingMoved: false,
-        blackKingMoved: false,
-
-        whiteLeftRookMoved: false,
-        whiteRightRookMoved: false,
-
-        blackLeftRookMoved: false,
-        blackRightRookMoved: false
-
-    });
-
-}
-return (
-
-    <div className="game-container">
-
-        {/*  Player Information  */}
-
-        <div className="players">
-
-            <div
-                className={
-                    turn === "black"
-                        ? "player-card active-player"
-                        : "player-card"
-                }
-            >
-
-                <h3>Black</h3>
-
-                <Timer
-
-                    whiteTime={whiteTime}
-
-                    blackTime={blackTime}
-
-                    turn={turn}
-
-                />
-
-                <div className="captured-pieces">
-
-                    <h4>Captured White Pieces</h4>
-
-                    <div>
-
-                        {
-                            capturedWhite.map((piece, index) => (
-
-                                <span key={index}>
-
-                                    {pieceNames[piece]}
-
-                                </span>
-
-                            ))
-                        }
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div
-                className={
-                    turn === "white"
-                        ? "player-card active-player"
-                        : "player-card"
-                }
-            >
-
-                <h3>White</h3>
-
-                <div className="captured-pieces">
-
-                    <h4>Captured Black Pieces</h4>
-
-                    <div>
-
-                        {
-                            capturedBlack.map((piece, index) => (
-
-                                <span key={index}>
-
-                                    {pieceNames[piece]}
-
-                                </span>
-
-                            ))
-                        }
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {/*  Message  */}
-
-        <h2>{message}</h2>
-
-        {/*  Main Content */}
-
-        <div className="game-layout">
-
-            {/* Chess Board */}
-
-            <div className="board">
-
-                {
-                    board.map((row, r) =>
-
-                        row.map((piece, c) => (
-
-                            <Square
-
-                                key={`${r}-${c}`}
-
-                                piece={piece}
-
-                                row={r}
-
-                                col={c}
-
-                                selected={
-
-                                    selected &&
-
-                                    selected.row === r &&
-
-                                    selected.col === c
-
-                                }
-
-                                legalMove={
-
-                                    legalMoves.some(
-
-                                        move =>
-
-                                            move.row === r &&
-
-                                            move.col === c
-
-                                    )
-
-                                }
-
-                                onClick={handleClick}
-
-                            />
-
-                        ))
-
-                    )
-                }
-
-            </div>
-
-            {/*  Move History  */}
-
-            <div className="move-history">
-
-                <h3>Move List</h3>
-
-                <ol>
-
-                    {
-                        moves.map((move, index) => (
-
-                            <li key={index}>
-
-                                {move}
-
-                            </li>
-
-                        ))
-                    }
-
-                </ol>
-
-            </div>
-
-        </div>
-
-        {/* Promotion Window */}
-
-        {
-            promotion.show && (
-
-                <div className="promotion-popup">
-
-                    <h3>
-
-                        Choose Promotion
-
-                    </h3>
-
-                    <div className="promotion-buttons">
-
-                        <button
-                            onClick={() => handlePromotion("q")}
-                        >
-                            Queen
-                        </button>
-
-                        <button
-                            onClick={() => handlePromotion("r")}
-                        >
-                            Rook
-                        </button>
-
-                        <button
-                            onClick={() => handlePromotion("b")}
-                        >
-                            Bishop
-                        </button>
-
-                        <button
-                            onClick={() => handlePromotion("n")}
-                        >
-                            Knight
-                        </button>
-
-                    </div>
-
-                </div>
-
-            )
-        }
-        {/* Buttons */}
-        <div className="controls">
-            <button onClick={undoMove}>
-                Undo
-            </button>
-            <button onClick={resetGame}>
-                Restart
-            </button>
-        </div>
     </div>
-);
+  );
 }
+
 export default ChessBoard;
