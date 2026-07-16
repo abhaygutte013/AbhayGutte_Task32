@@ -3,8 +3,8 @@
 // 1. Their king is in check.
 // 2. There is no legal move that removes the check.
 
-import { isKingInCheck } from "/utils/checkLogic.js";
-import isValidMove from "/utils/pieceMoves.js";
+import { isKingInCheck } from "./checkLogic.js";
+import isValidMove from "./pieceMoves.js";
 
 function isCheckmate(
 
