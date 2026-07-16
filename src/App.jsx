@@ -1,7 +1,7 @@
 // App.jsx
 
 import "./App.css";
-import ChessBoard from "/components/ChessBoard.jsx";
+import ChessBoard from "../components/ChessBoard.jsx";
 
 function App() {
 
