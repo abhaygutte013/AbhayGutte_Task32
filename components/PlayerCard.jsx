@@ -2,22 +2,17 @@ import Timer from "/components/Timer.jsx";
 
 function PlayerCard({
   player,
+  color,
   time,
   setTime,
   currentPlayer,
   gameOver,
-  color,
 }) {
   return (
-    <div
-      className={`panel-box ${
-        color === "white" ? "white-card" : "black-card"
-      }`}
-    >
-      <h2 className="player-name">{player}</h2>
-
-      <p className="time-label">Time Left</p>
-
+    <div className="player-card">
+      <h2>
+        {player}
+      </h2>
       <Timer
         time={time}
         setTime={setTime}
@@ -25,8 +20,18 @@ function PlayerCard({
         player={color}
         gameOver={gameOver}
       />
+      <p
+        className={
+          currentPlayer === color
+            ? "active-player"
+            : ""
+        }
+      >
+        {currentPlayer === color
+          ? "Your Turn"
+          : "Waiting..."}
+      </p>
     </div>
   );
 }
-
 export default PlayerCard;
