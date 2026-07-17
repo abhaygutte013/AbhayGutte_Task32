@@ -1,25 +1,19 @@
 function MoveHistory({ moves }) {
   return (
-    <div className="panel-box">
-
-      <h2 className="section-title">Move History</h2>
-
-      <div className="history-box">
-
-        {moves.length === 0 ? (
-          <p>No moves yet</p>
-        ) : (
-          moves.map((move, index) => (
-            <p key={index}>
-              {index + 1}. {move}
-            </p>
-          ))
-        )}
-
-      </div>
-
+    <div className="move-history">
+      <h3>Move History</h3>
+      {moves.length === 0 ? (
+        <p>No moves yet.</p>
+      ) : (
+        <ol>
+          {moves.map((move, index) => (
+            <li key={index}>
+              {move}
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
-
 export default MoveHistory;
