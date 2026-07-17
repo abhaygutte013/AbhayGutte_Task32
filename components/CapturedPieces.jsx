@@ -1,25 +1,25 @@
-function CapturedPieces({ title, pieces }) {
+function CapturedPieces({
+  title,
+  pieces,
+}) {
   return (
-    <div className="panel-box">
-
-      <h2 className="section-title">{title}</h2>
-
-      <div className="capture-box">
-
-        {pieces.length === 0 ? (
-          <p>No pieces captured</p>
-        ) : (
-          pieces.map((piece, index) => (
-            <span key={index}>
+    <div className="captured-box">
+      <h3>{title}</h3>
+      {pieces.length === 0 ? (
+        <p>None</p>
+      ) : (
+        <div className="captured-list">
+          {pieces.map((piece, index) => (
+            <span
+              key={index}
+              className="captured-piece"
+            >
               {piece.symbol}
             </span>
-          ))
-        )}
-
-      </div>
-
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
 export default CapturedPieces;
