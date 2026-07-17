@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import ChessBoard from "/components/ChessBoard.jsx";
@@ -7,40 +7,60 @@ import CapturedPieces from "/components/CapturedPieces.jsx";
 import MoveHistory from "/components/MoveHistory.jsx";
 
 function App() {
-  // Timer values (10 minutes)
+
+
+  // Timer (10 Minutes)
   const [whiteTime, setWhiteTime] = useState(600);
   const [blackTime, setBlackTime] = useState(600);
 
-  // Whose turn
+  // Current Turn
   const [currentPlayer, setCurrentPlayer] = useState("white");
 
-  // Captured pieces
+  // Captured Pieces
   const [capturedWhite, setCapturedWhite] = useState([]);
   const [capturedBlack, setCapturedBlack] = useState([]);
 
-  // Move history
+  // Move History
   const [moveHistory, setMoveHistory] = useState([]);
 
-  // Game over
+  // Game Status
   const [gameOver, setGameOver] = useState(false);
 
+// Timer Ends Game
+useEffect(() => {
+
+    if (!gameOver && whiteTime <= 0) {
+    setGameOver(true);
+    alert("Black Wins! White ran out of time.");
+}
+
+if (!gameOver && blackTime <= 0) {
+    setGameOver(true);
+    alert("White Wins! Black ran out of time.");
+}
+
+},[whiteTime, blackTime, gameOver]);
+
   return (
+
     <div className="app">
 
-      <h1 className="title">React Chess Game</h1>
+      <h1 className="title">
+        React Chess Game
+      </h1>
 
       <div className="game-layout">
 
-        {/* Left Side */}
+        {/* Left Panel */}
         <div className="left-panel">
 
           <PlayerCard
             player="White"
-            time={whiteTime}
-            currentPlayer={currentPlayer}
-            setTime={setWhiteTime}
-            gameOver={gameOver}
             color="white"
+            time={whiteTime}
+            setTime={setWhiteTime}
+            currentPlayer={currentPlayer}
+            gameOver={gameOver}
           />
 
           <CapturedPieces
@@ -54,6 +74,7 @@ function App() {
         <div className="center-panel">
 
           <ChessBoard
+
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
 
@@ -68,20 +89,27 @@ function App() {
 
             gameOver={gameOver}
             setGameOver={setGameOver}
+
+            whiteTime={whiteTime}
+            blackTime={blackTime}
+
+            setWhiteTime={setWhiteTime}
+            setBlackTime={setBlackTime}
+
           />
 
         </div>
 
-        {/* Right Side */}
+        {/* Right Panel */}
         <div className="right-panel">
 
           <PlayerCard
             player="Black"
-            time={blackTime}
-            currentPlayer={currentPlayer}
-            setTime={setBlackTime}
-            gameOver={gameOver}
             color="black"
+            time={blackTime}
+            setTime={setBlackTime}
+            currentPlayer={currentPlayer}
+            gameOver={gameOver}
           />
 
           <CapturedPieces
@@ -98,7 +126,8 @@ function App() {
       </div>
 
     </div>
-  );
-}
 
+  );
+
+}
 export default App;
