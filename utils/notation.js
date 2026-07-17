@@ -1,69 +1,53 @@
-// Convert board position into chess notation
+// Convert board column to chess file
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-function getNotation(piece, fromRow, fromCol, toRow, toCol, capturedPiece) {
+// Piece letters
+const pieceLetters = {
+  king: "K",
+  queen: "Q",
+  rook: "R",
+  bishop: "B",
+  knight: "N",
+  pawn: "",
+};
 
-  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-  const file = files[toCol];
-  const rank = 8 - toRow;
+export default function getNotation(
+  piece,
+  fromRow,
+  fromCol,
+  toRow,
+  toCol,
+  capturedPiece
+) {
 
   // Piece letter
-  let pieceLetter = "";
+  const pieceLetter = pieceLetters[piece.type];
 
-  switch (piece.type) {
-    case "king":
-      pieceLetter = "K";
-      break;
+  // Destination square
+  const destination =
+    files[toCol] + (8 - toRow);
 
-    case "queen":
-      pieceLetter = "Q";
-      break;
-
-    case "rook":
-      pieceLetter = "R";
-      break;
-
-    case "bishop":
-      pieceLetter = "B";
-      break;
-
-    case "knight":
-      pieceLetter = "N";
-      break;
-
-    default:
-      pieceLetter = "";
-  }
-
-  let move = "";
-
-  // Pawn moves
+  // Pawn move
   if (piece.type === "pawn") {
 
     // Pawn capture
     if (capturedPiece) {
-      move = files[fromCol] + "x" + file + rank;
+      return (
+        files[fromCol] +
+        "x" +
+        destination
+      );
     }
 
     // Normal pawn move
-    else {
-      move = file + rank;
-    }
+    return destination;
   }
 
-  // Other pieces
-  else {
-
-    if (capturedPiece) {
-      move = pieceLetter + "x" + file + rank;
-    }
-
-    else {
-      move = pieceLetter + file + rank;
-    }
+  // Other piece
+  let move = pieceLetter;
+  if (capturedPiece) {
+    move += "x";
   }
-
+  move += destination;
   return move;
 }
-
-export default getNotation;
