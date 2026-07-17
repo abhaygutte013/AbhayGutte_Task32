@@ -1,65 +1,42 @@
 import isValidMove from "/utils/pieceMoves.js";
+function findKing(board,color){
+  for(let row=0;row<8;row++){
+    for(let col=0;col<8;col++){
+      const piece=board[row][col];
 
-// Find the king on the board
-function findKing(board, color) {
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const piece = board[row][col];
-
-      if (
-        piece &&
-        piece.type === "king" &&
-        piece.color === color
-      ) {
-        return { row, col };
+      if(
+        piece && piece.type==="king" && piece.color===color
+      ){
+        return {row,col};
       }
     }
   }
-
   return null;
 }
 
-// Check if the king is under attack
-function isKingInCheck(board, color) {
+export function isKingInCheck(board,kingColor){
+  const king=findKing(board,kingColor);
 
-  const king = findKing(board, color);
-
-  if (!king) {
+  if(!king){
     return false;
   }
+  const enemyColor=kingColor==="white"?"black":"white";
+  for(let row=0;row<8;row++){
+    for(let col=0;col<8;col++){
+      const piece=board[row][col];
 
-  // Check every opponent piece
-  for (let row = 0; row < 8; row++) {
-
-    for (let col = 0; col < 8; col++) {
-
-      const piece = board[row][col];
-
-      if (!piece) {
+      if(!piece){
         continue;
       }
-
-      // Skip own pieces
-      if (piece.color === color) {
+      if(piece.color!==enemyColor){
         continue;
       }
+      const canAttack=isValidMove(board,row,col,king.row,king.col,enemyColor);
 
-      // Can this piece attack the king?
-      if (
-        isValidMove(
-          board,
-          row,
-          col,
-          king.row,
-          king.col
-        )
-      ) {
+      if(canAttack){
         return true;
       }
     }
   }
-
   return false;
 }
-
-export { isKingInCheck };
